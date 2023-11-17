@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Registration Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <form action="{% url 'registerUser' %}" method="POST">
+        {% csrf_token %}
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="firstname">First Name:</label>
+                {{form.first_name}}
+            </div>
+    
+            <div class="form-group col-md-4">
+                <label for="lastname">Last Name:</label>
+                {{form.last_name}}
+            </div>
+        </div>
+    
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="phone">Phone:</label>
+                {{form.phone_number}}    
+            </div>
+    
+            <div class="form-group col-md-6">
+                <label for="email">Email:</label>
+                {{form.email}}
+            </div>
+        </div>
+    
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="pass">Password:</label>
+                {{form.password}}
+            </div>
+            <div class="form-group col-md-6">
+                <label for="repass">Password Confirmation:</label>
+                {{form.confirm_password}}
+            </div>
+        </div>
+    
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <br><br>
+        <ul class="errorlist">
+            {% for field in form%}
+
+                {% if field.errors %}
+                    {% for error in field.errors%}
+                        <li style="color: red;">{{error}}</li>
+                    {% endfor %}
+                {% endif %}
+
+            {% endfor %}
+            <li style="color: red;">{{form.non_field_errors}}</li>
+        </ul>
+        {% if messages %}
+            {% for message in messages%}
+                <h1 class="alert alert-success" role="alert">{{message}}</h1>
+            {% endfor %}
+        {% endif %}
+    </form>    
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
