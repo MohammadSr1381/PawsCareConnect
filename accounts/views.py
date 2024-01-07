@@ -1,18 +1,51 @@
+import email
+from email import message
 from django.shortcuts import render , redirect
 from django.http import HttpResponse
+from accounts.utils import detectUser
 
 from clinics.forms import ClinicForm
 from clinics.models import Clinic
 from .forms import UserForm
 from .models import User, UserProfile
-from django.contrib import messages
+from django.contrib import messages ,auth
+from django.contrib.auth.decorators import login_required , user_passes_test
+from django.core.exceptions import PermissionDenied
 
+
+def check_role_patient(user):
+    if user.role ==1:
+        return True
+    else:
+        raise PermissionDenied
+    
+    
+def check_role_patient(user):
+    if user.role ==1:
+        return True
+    else:
+        raise PermissionDenied
+    
+def check_role_clinic(user):
+    if user.role ==2:
+        return True
+    else:
+        raise PermissionDenied
+    
+def check_role_Laboratory(user):
+    if user.role ==3:
+        return True
+    else:
+        raise PermissionDenied
 
 def roleClass(request):
     return render(request , 'accounts/roleClass.html')
 
 def registerUser(request):
-    if request.method == "POST" :
+    if request.user.is_authenticated:
+        messages.warning(request,'u r already logged in')
+        return redirect('dashboard')
+    elif request.method == "POST" :
         
         form = UserForm(request.POST)
         if form.is_valid():
@@ -41,7 +74,10 @@ def registerUser(request):
 
 
 def registerClinic(request):
-    if request.method == "POST" :
+    if request.user.is_authenticated:
+        messages.warning(request,'u r already logged in')
+        return redirect('dashboard')
+    elif request.method == "POST" :
         form = UserForm(request.POST)
         clinic_form = ClinicForm(request.POST , request.FILES)
         if form.is_valid() and clinic_form.is_valid():
@@ -87,6 +123,9 @@ def registerClinic(request):
 
 
 def registerLaboratory(request):
+    if request.user.is_authenticated:
+        messages.warning(request,'u r already logged in')
+        return redirect('dashboard')
     if request.method == "POST" :
         form = UserForm(request.POST)
         clinic_form = ClinicForm(request.POST , request.FILES)
@@ -129,3 +168,48 @@ def registerLaboratory(request):
         'clinic_form' : clinic_form ,
     }
     return render(request , 'accounts/registerLaboratory.html' ,context)
+
+def login(request):
+    if request.user.is_authenticated:
+        messages.warning(request,'u r already logged in')
+        return redirect('dashboard')
+    elif request.method =='POST':   
+        email = request.POST["email"]
+        password = request.POST["password"]
+    
+        user = auth.authenticate(email=email , password=password)
+        if user is not None:
+            auth.login(request,user)
+            messages.success(request,'u r logged in')
+            return redirect('myAccount')
+        else :
+            messages.error(request , 'invalid login credentials')
+            return redirect('login')
+        
+    return render(request , 'accounts/login.html')
+
+def logout(request):
+    auth.logout(request)
+    messages.info(request,'u r logged out')
+    return redirect('home')
+
+@login_required(login_url ='login')
+def myAccount(request):
+    user = request.user
+    redirectUrl = detectUser(user)
+    return redirect(redirectUrl)
+
+@login_required(login_url ='login')
+@user_passes_test(check_role_patient)
+def patientDashboard(request):
+    return render(request, 'accounts/patientDashboard.html')
+
+@login_required(login_url ='login')
+@user_passes_test(check_role_clinic)
+def clinicDashboard(request):
+    return render(request, 'accounts/clinicDashboard.html')
+
+@login_required(login_url ='login')
+@user_passes_test(check_role_Laboratory)
+def laboratoryDashboard(request):
+    return render(request, 'accounts/laboratoryDashboard.html') 
