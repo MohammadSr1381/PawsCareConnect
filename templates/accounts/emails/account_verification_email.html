@@ -1,0 +1,7 @@
+{% autoescape off%}
+
+سلام  برای تائید ثبت نام روی لینک زیر کلیک کنید. {{user.firts_name}} {{user.last_name}}
+
+http://{{domain}}{% url 'activate' uidb64=uid token=token %}
+
+{%endautoescape%}
