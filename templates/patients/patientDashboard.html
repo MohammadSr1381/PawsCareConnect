@@ -1,7 +1,7 @@
 
 {%extends 'base.html'%}
 
-
+{%load static%}
 {%block content%}
 
 <!DOCTYPE html>
@@ -72,7 +72,7 @@
                     <hr>
                     <div class="dropdown">
                       <a href="#" class="d-flex align-items-center link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
+                        <img src="{% if user.userprofile.profile_picture %}{{ user.userprofile.profile_picture.url }}{% else %}{% static 'images/default.PNG' %}{% endif %}" alt="" width="32" height="32" class="rounded-circle me-2">                      
                         <strong>نام کاربر</strong>
                       </a>
                       <ul class="dropdown-menu text-small shadow">
@@ -88,104 +88,42 @@
             </div>
             
             <div class="d-flex col-md-9 justify-content-center align-items-center">
-                <form class="row">
-                    <div class="col-md-3">
-                      <label for="validationDefault01" class="form-label">نام</label>
-                      <input type="text" class="form-control" id="validationDefault01" value='{{user.first_name}}' required>
-                    </div>
-                    <div class="col-md-3">
-                      <label for="validationDefault02" class="form-label">نام خانوادگی</label>
-                      <input type="text" class="form-control" id="validationDefault02" value='{{user.last_name}}' required>
-                    </div>
-                    <div class="col-md-3">
-                      <label for="validationDefault05" class="form-label">کدملی</label>
-                      <input type="text" class="form-control" id="validationDefault05" required>
-                    </div>
-                    <div class="col-md-4 mt-4">
-                    <label for="validationDefault01" class="form-label">جنسیت :</label>
-                    <div class="form-check form-check-inline ms-4">
-                      <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
-                      <label class="form-check-label" for="inlineRadio1">زن</label>
-                    </div>
-                    <div class="form-check form-check-inline ms-4">
-                      <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
-                      <label class="form-check-label" for="inlineRadio2">مرد</label>
-                    </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="row my-3">
-                            <div class="col-md-2">
-                                <label for="validationDefault06" class="form-label">روز</label>
-                                <select class="form-select form-select-sm" aria-label="Small select example" style="width: 90px;">
-                                    <option selected>1</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
-                                    <option value="3">Three</option>
-                                  </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="validationDefault07" class="form-label">ماه</label>
-                                <select class="form-select form-select-sm " aria-label="Small select example" style="width: 150px;">
-                                    <option selected>فروردین</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
-                                    <option value="3">Three</option>
-                                  </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="validationDefault08" class="form-label">سال</label>
-                                <select class="form-select form-select-sm" aria-label="Small select example" style="width: 150px;">
-                                    <option selected>1402</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
-                                    <option value="3">Three</option>
-                                  </select>
-                            </div>
-                        </div>
-                    </div>
+                <form action ="{% url 'pprofile' %}" class="row" method="post" enctype="multipart/form-data">
+                    {%csrf_token%}
                     
                     <div class="col-md-3">
-                      <label for="validationDefault04" class="form-label">استان</label>
-                      <select class="form-select" id="validationDefault04" required>
-                        <option selected disabled value="">انتخاب</option>
-                        <option>...</option>
-                      </select>
+                      <label for="validationDefault01" class="form-label">نام</label>
+                      <input type="text" class="form-control" name="first_name" value='{{user.first_name}}' required>
                     </div>
-                    <div class="col-md-3 ms-4">
-                      <label for="validationDefault03" class="form-label">شهر</label>
-                      <input type="text" class="form-control" id="validationDefault03" required>
-                    </div>
+
+                    <div class="col-md-3">
+                      <label for="validationDefault02" class="form-label">نام خانوادگی</label>
+                      <input type="text" class="form-control" name="last_name" value='{{user.last_name}}' required>
+                    </div>      
+                    
+                    <div class="col-md-3">
+                      <label for="validationDefault02" class="form-label">کد ملی</label>
+                      <input type="text" class="form-control" name="last_name" required>
+                    </div> 
+                    
                     <div class="w-100"></div>
                     <div class="col-md-4 mt-3 ">
                       <div class="mb-3">
                         <label for="exampleFormControlInput1" class="form-label">ایمیل</label>
-                        <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+                        <input type="email" class="form-control" name="email" value="{{user.email}}" required>
                       </div>
                     </div>
                   
                     <div class="col-md-4 mt-3 ms-4">
                       <label for="validationDefault01" class="form-label">موبایل</label>
-                      <input class="form-control" type="text" placeholder="" aria-label="Disabled input example" disabled>
+                      <input class="form-control" type="text" name="phone_number" value="{{user.phone_number}}" required>
                     </div>
+                
+                    <div class="col-md-3">
+                      <label for="validationDefault05" class="form-label">عکس پروفایل</label>
+                      <input type="file" class="form-control" name="profile_picture">
+                    </div>
+
                   
                     <div class="col-12 mt-3">
                       <button class="btn btn-primary" type="submit">ثبت</button>

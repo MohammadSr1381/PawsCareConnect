@@ -13,6 +13,9 @@ from django.contrib.auth.tokens import default_token_generator
 
 from clinics.forms import ClinicForm
 from clinics.models import Clinic
+from clinics.views import cprofile, lprofile
+from patients.views import pprofile
+from patients.models import Patient
 from .forms import UserForm
 from .models import User, UserProfile
 from django.contrib import messages ,auth
@@ -63,8 +66,11 @@ def registerUser(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
             user = User.objects.create_user(first_name = first_name , last_name = last_name , phone_number = phone_number , email = email, password = password)
+            patient = Patient.objects.create(user=user , user_profile=UserProfile.objects.get(user=user))
+            
             user.role = User.PATIENT    
             user.save()
+            patient.save()
             
             #verify
             mail_subject = 'لطفا اکانت خود را فعال کنید'
@@ -250,17 +256,17 @@ def myAccount(request):
 @login_required(login_url ='login')
 @user_passes_test(check_role_patient)
 def patientDashboard(request):
-    return render(request, 'accounts/patientDashboard.html')
+    return redirect(pprofile)
 
 @login_required(login_url ='login')
 @user_passes_test(check_role_clinic)
 def clinicDashboard(request):
-    return render(request, 'accounts/clinicDashboard.html')
+    return redirect(cprofile)
 
 @login_required(login_url ='login')
 @user_passes_test(check_role_Laboratory)
 def laboratoryDashboard(request):
-    return render(request, 'accounts/laboratoryDashboard.html') 
+    return redirect(lprofile)
 
 
 def forgot_password(request):
@@ -287,7 +293,7 @@ def forgot_password(request):
 
 def reset_password_validate(request , uidb64 , token):
     try:
-        uid = urlsafe_base64_decode(uidb64)
+        uid = urlsafe_base64_decode(uidb64).decode()
         user = User._default_manager.get(pk=uid)
     except(TypeError , ValueError , OverflowError , User.DoesNotExist):
         user = None
@@ -316,7 +322,7 @@ def reset_password(request):
                 messages.success(request , 'password changed successfully')
                 return redirect('login')
             else:
-                messages.error('passwords do not match')
+                messages.error(request , 'passwords do not match')
                 return redirect('reset_password')
             
             

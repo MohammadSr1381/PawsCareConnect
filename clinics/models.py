@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import User, UserProfile
+from accounts.utils import send_notification
 
 
 
@@ -60,3 +61,24 @@ class Clinic(models.Model):
     
     def __str__(self):
         return self.clinic_name
+    
+    def save(self , *args , **kwargs):
+        
+        if self.pk is not None:
+            orig = Clinic.objects.get(pk=self.pk)
+            mail_template = 'accounts/emails/admin_approval_email.html'
+            context = {
+                'user' : self.user,
+                'is_approver' : self.is_approver
+            }
+                
+            if orig.is_approver == True:
+                mail_subject = 'کلینیک شما توسط ادمین تائید شد'
+                
+                send_notification(mail_subject , mail_template , context)
+            else :   
+                mail_subject = 'متاسفانه کلینیک شما شرایط لازم برای تایئد شدن را ندارد'
+ 
+                send_notification(mail_subject , mail_template , context)
+
+        return super(Clinic, self).save(*args , **kwargs)

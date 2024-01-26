@@ -1,6 +1,6 @@
 from typing import Any
 from django import forms
-from . models import User
+from . models import User, UserProfile
 
 
 class UserForm(forms.ModelForm):
@@ -18,3 +18,8 @@ class UserForm(forms.ModelForm):
         
         if password != confirm_password :
                 raise forms.ValidationError("password does not match")
+            
+class userProfileForm(forms.ModelForm):
+    class Meta :
+        model = UserProfile
+        fields = ['profile_picture' , 'citizen_id' , 'city']

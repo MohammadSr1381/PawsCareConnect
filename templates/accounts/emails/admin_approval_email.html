@@ -1,0 +1,14 @@
+{% autoescape off%}
+
+سلام. {{user.firts_name}} {{user.last_name}}
+
+
+{%if is_approver %}
+کلینیک شما توسط ادمین تائید شد
+
+{% else %}
+متاسفانه کلینیک شما شرایط لازم برای تائید شدن را ندارد
+
+{%endif%}
+
+{%endautoescape%}

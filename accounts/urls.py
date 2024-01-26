@@ -1,4 +1,7 @@
+
 from django.urls import path , include
+from django.conf.urls.static import static
+from PawsCareConnect import settings
 from . import views
 
 
@@ -25,4 +28,4 @@ urlpatterns = [
     path('reset_password' , views.reset_password , name='reset_password'),
 
 
-]
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
