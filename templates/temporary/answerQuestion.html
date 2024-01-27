@@ -7,7 +7,7 @@
       <li>
         <p>{{ question.question_text }}</p>
         {% if not question.is_answered %}
-          <form method="post" action="{% url 'answerQuestion' clinic_id=clinic.id %}">
+          <form method="post" action="{% url 'answerQuestion'%}">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ question.id }}">
             <label for="answer_text">Your Answer:</label>

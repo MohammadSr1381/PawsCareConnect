@@ -8,4 +8,7 @@ from . import views
 urlpatterns = [
     path('pprofile/' , views.pprofile , name = 'pprofile'),
     path('askQuestion/<clinic_id>' , views.askQuestion , name = 'askQuestion'),
+    path('activateWallet/' , views.activateWallet , name = 'activateWallet'),
+    path('increaseBalance/' , views.increaseBalance , name = 'increaseBalance'),
+    path('showWalletInfo/' , views.showWalletInfo , name = 'showWalletInfo'),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

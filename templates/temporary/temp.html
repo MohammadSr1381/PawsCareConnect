@@ -1,0 +1,53 @@
+<!--section4-->
+<div class="container w-75 dashboard-section" id="section4">
+    <div class="card rounded-5 shadow-lg my-2">
+      <div class="card-body  text-primary">
+          <div class="row justify-content-center ">
+              <div class="col-md-12 text-center">
+                <div class="row justify-content-center">
+                  <hr class="col-md-4 mt-3">
+                  <p class="col-md-2 text-primary">سوالات  من</p>
+                  <hr class="col-md-4 mt-3">
+                </div>
+              </div>
+              {% if questions %}
+              
+              <div class="b-example-divider"></div>
+              {% for question in questions %}
+                <div class="col-md-12 accordion-item">
+                  <h2 class="accordion-header mb-3">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ question.id }}" aria-expanded="true" aria-controls="collapse{{ question.id }}">
+                      عنوان سوال:
+                      <span class="text-muted">{{ question.question_text }}</span>
+                    </button>
+                  </h2>
+                  <div id="collapse{{ question.id }}" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      <div class="mb-3">
+                        <label for="exampleFormControlTextarea1" class="form-label"></label>
+                        {% if not question.is_answered %}
+                        <form method="post" action="{% url 'answerQuestion' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name="id" value="{{ question.id }}">
+                          <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="جواب خود را بنویسید"></textarea>
+                      </div>
+                      <div class="col-md-12 mx-1">
+                        <div class="d-flex flex-row-reverse">
+                          <button type="submit" class="btn btn-outline-secondary">ارسال</button>
+                        </form>
+                        {% else %}
+                          <p>Answer: {{ question.answer_text }}</p>
+                        {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}       
+          </div>
+          {% else %}
+              <p>هیچ سوالی پرسیده نشده است</p>
+          {% endif %}
+      </div>
+    </div>
+  </div>

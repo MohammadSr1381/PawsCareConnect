@@ -119,9 +119,9 @@ def lprofile(request):
     
 
 @login_required
-def answerQuestion(request,clinic_id):
-    
-    clinic = Clinic.objects.get(id=clinic_id)
+def answerQuestion(request):
+    user = request.user
+    clinic = Clinic.objects.get(user=user)
     questions = Question.objects.filter(clinic=clinic , is_answered=False)
     
     if request.method == 'POST':
@@ -146,5 +146,5 @@ def answerQuestion(request,clinic_id):
     
     else :
         context = {'clinic': clinic, 'questions': questions}
-        return render(request, 'temporary/answerQuestion.html', context)
+        return render(request, 'temporary/temp.html', context)
     
