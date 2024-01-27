@@ -27,6 +27,7 @@ class Question(models.Model):
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='answered_questions')
     question_text = models.TextField(blank=False)
     answer_text = models.TextField()
+    is_answered = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)

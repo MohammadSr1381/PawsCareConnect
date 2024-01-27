@@ -1,0 +1,6 @@
+<form method="post" action="{% url 'askQuestion' clinic_id=clinic.id %}">
+    {% csrf_token %}
+    <label for="question_text">Your Question:</label>
+    <textarea id="question_text" name="question_text" rows="4" required></textarea>
+    <button type="submit">Ask Question</button>
+</form>

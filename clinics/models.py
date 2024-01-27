@@ -46,7 +46,6 @@ class Clinic(models.Model):
     (ARAK, 'Arak'),
     )
     
-    
     user = models.OneToOneField(User , related_name='user' , on_delete=models.CASCADE)
     user_profile = models.OneToOneField(UserProfile , related_name='userprofile' , on_delete=models.CASCADE)
     clinic_name = models.CharField(max_length=100)

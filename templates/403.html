@@ -1,2 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
 
-U R NOT AUTHORIZED TO BE IN THIS PAGE
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center error-container">
+      <div class="col-md-6 text-center">
+        <h1 class="display-1">403</h1>
+        <h2>Forbidden</h2>
+        <p>Sorry, you don't have permission to access this page.</p>
+        <a href="/" class="btn btn-primary">Back to Home</a>
+      </div>
+    </div>
+  </div>
+  <style>
+    /* Add custom styles here */
+    body {
+      background-color: #f8f9fa;
+    }
+    .error-container {
+      margin-top: 100px;
+    }
+  </style>
+{% endblock %}

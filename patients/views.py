@@ -1,10 +1,13 @@
+from multiprocessing import context
 from django.shortcuts import render
 from site import USER_BASE
 from django.shortcuts import redirect, render
 from accounts.forms import UserForm, userProfileForm
 from accounts.models import User, UserProfile
 from django.contrib import messages
-from patients.models import Patient 
+from clinics.models import Clinic
+from patients.models import Patient, Question 
+from django.contrib.auth.decorators import login_required
 
 
 def pprofile(request):
@@ -50,5 +53,25 @@ def pprofile(request):
             'profile_form': profile_form,
         }
         return render(request, 'patients/patientDashboard.html', context)
+    
 
+@login_required
+def askQuestion(request,clinic_id):
+    
+    clinic = Clinic.objects.get(id=clinic_id)
+    context = {
+        'clinic' : clinic,
+    }
+    if request.method == 'POST':
+        question_text = request.POST['question_text']
+        
+        question = Question.objects.create(
+            patient=request.user,
+            clinic=clinic,
+            question_text=question_text
+        )
+        messages.success(request,'question asked')
+        return redirect('home')
+        
+    return render(request, 'temporary/askQuestion.html', context)
 
