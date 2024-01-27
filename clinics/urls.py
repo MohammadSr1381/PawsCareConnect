@@ -8,4 +8,6 @@ urlpatterns = [
     path('cprofile/' , views.cprofile , name = 'cprofile'),
     path('lprofile/' , views.lprofile , name = 'lprofile'),
     path('answerQuestion/' , views.answerQuestion , name = 'answerQuestion'),
+    path('deleteClinicProfile/' , views.deleteClinicProfile , name = 'deleteClinicProfile'),
+    path('changePassword/' , views.changePassword , name = 'changePassword'),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
