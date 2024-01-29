@@ -10,7 +10,7 @@ class PatientAdmin(admin.ModelAdmin):
 class WalletAdmin(admin.ModelAdmin):
     list_display = ('patient' , 'balance' , 'is_activated' , 'created_at' ,'modified_at')
     
-    
+ 
     
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ('patient' , 'clinic' , 'question_text' , 'answer_text')

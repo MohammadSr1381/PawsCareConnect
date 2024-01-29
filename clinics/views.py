@@ -1,12 +1,15 @@
+from django.db.models import Avg
+
 from dbm import error
 from multiprocessing import context
 from site import USER_BASE
+
 from django.shortcuts import get_object_or_404, redirect, render
 from accounts.forms import UserForm, userProfileForm
 from accounts.models import User, UserProfile
 
 from clinics.forms import AnswerForm, CRUDClinicForm, CRUDUserForm, CRUDUserProfileForm, ClinicForm
-from clinics.models import Clinic
+from clinics.models import Clinic, ClinicSetting, Comment, Rating
 from django.contrib import messages , auth
 from django.contrib.auth.decorators import login_required
 from patients.models import Question 
@@ -61,13 +64,15 @@ def cprofile(request):
         questions = Question.objects.filter(clinic=clinic)
         profile_form = userProfileForm(instance=user_instance.userprofile)
         clinic_form = ClinicForm(instance=clinic_instance)
+        clinicSetting = ClinicSetting.objects.get(clinic=clinic)
         context = {
             'user': user_instance,
             'profile_form': profile_form,
             'clinic_form': clinic_form,
             'location_choices': clinic_instance.LOCATION_CHOICE ,
             'clinic': clinic, 
-            'questions': questions
+            'questions': questions,
+            'clinicSetting' : clinicSetting
         }
         return render(request, 'clinics/clinicDashboard.html', context)
 
@@ -87,7 +92,7 @@ def deleteClinicProfile(request):
         return render(request, 'clinics/clinicDashboard.html')
     
 
-
+@login_required
 def changeClinicPassword(request):
     
     user_instance = User.objects.get(id=request.user.id)
@@ -201,6 +206,50 @@ def answerQuestion(request):
 
 
 def clinicProfile(request, clinic_id):
-    clinic = get_object_or_404(Clinic, id=clinic_id)
-    context = {'clinic': clinic}
+    clinic = Clinic.objects.get(id=clinic_id)
+    clinicSetting = ClinicSetting.objects.get(clinic=clinic)
+    comments = Comment.objects.filter(clinic=clinic)
+    
+    score_avg = Rating.objects.filter(clinic=clinic).aggregate(Avg('score'))['score__avg']
+    
+    context = {
+        'clinic': clinic,
+        'clinicSetting': clinicSetting,
+        'comments': comments,
+        'ratingAvg': score_avg,
+    }
     return render(request, 'clinics/clinicProfile.html', context)
+
+@login_required
+def updateSettings(request):
+    
+    user_instance = User.objects.get(id=request.user.id)
+    clinic_instance = Clinic.objects.get(user=request.user)
+    clinic_setting = ClinicSetting.objects.get(clinic=clinic_instance)
+    
+    if request.method == "POST":
+       
+        description = request.POST.get("description")
+        opening_time = request.POST.get('opening_time')
+        closing_time = request.POST.get('closing_time')
+        price = request.POST.get('price')
+        
+        if not(description and opening_time and closing_time and price):
+            messages.error(request, "لطفاً تمامی فیلدها را پر کنید.")
+            return redirect('cprofile')
+        
+        else:
+            clinic_setting.description = description
+            clinic_setting.opening_time = opening_time
+            clinic_setting.closing_time = closing_time
+            clinic_setting.cost = price
+            clinic_setting.save()
+
+            messages.success(request, "تنظیمات شما با موفقیت آپدیت شد")
+            return redirect('cprofile')
+        
+    return render(request, 'clinics/clinicDashboard.html', context)
+
+
+
+    

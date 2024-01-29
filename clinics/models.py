@@ -2,6 +2,7 @@ from django.db import models
 from django.forms import ValidationError
 from accounts.models import User, UserProfile
 from accounts.utils import send_notification
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 
@@ -93,13 +94,29 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"comment from {self.patient.email} to {self.clinic.clinic_name}"
+    
+    
+class Rating(models.Model):
+    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rater')
+    clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='rated')
+    score = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"rating from {self.patient.email} to {self.clinic.clinic_name}"
 
 
 class ClinicSetting(models.Model):
     clinic = models.OneToOneField(Clinic, on_delete=models.CASCADE, related_name='clinic_setting')
+    cost = models.DecimalField(max_digits=10, decimal_places=2, default = 20000)
     description = models.TextField(blank=True, null=True)
-    opening_time = models.TimeField(blank=True, null=True)
-    closing_time = models.TimeField(blank=True, null=True)
+    opening_time = models.TimeField(blank=True, null=True, default='08:00:00')
+    closing_time = models.TimeField(blank=True, null=True, default='20:00:00')
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
     def clean(self):
         if self.opening_time and self.closing_time:
@@ -109,13 +126,3 @@ class ClinicSetting(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
-
-   
-    
-class ClinicSetting(models.Model):
-    clinic = models.OneToOneField(Clinic, on_delete=models.CASCADE, related_name='clinic_setting')
-    description = models.TextField(blank=True, null=True)
-    opening_hours = models.CharField(max_length=100, blank=True, null=True)
-    
-    def __str__(self):
-        return f"{self.clinic.clinic_name} - ClinicSetting"

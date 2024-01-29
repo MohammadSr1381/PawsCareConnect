@@ -1,0 +1,29 @@
+.rating {
+    unicode-bidi: bidi-override;
+    direction: rtl;
+    text-align: center;
+}
+
+.rating > span {
+display: inline-block;
+position: relative;
+width: 2em; /* Adjust the width as needed */
+font-size: 2em;
+}
+
+.rating span.active,
+.rating span:hover,
+.rating span:hover ~ span {
+    color: orange;
+    cursor: pointer;
+}
+
+/* Define cursor pointer for all stars */
+.rating span {
+    cursor: pointer;
+}
+
+.b-example-divider{
+    height: 15px;
+}
+

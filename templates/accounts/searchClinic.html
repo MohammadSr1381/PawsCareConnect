@@ -97,7 +97,13 @@
                     {% for clinic in clinics%}
                       <div class="row ">
                         <div class="col-md-3">
-                          <img src="{{clinic.user.userprofile.profile_picture.url}}" alt="Profile Picture" style="height: 220px; width: 220px; border-radius: 20%;">
+                          {% if clinic.user.userprofile.profile_picture %}
+                            <img src="{{ clinic.user.userprofile.profile_picture.url }}" alt="Profile Picture" style="height: 220px; width: 220px; border-radius: 20%;">
+        
+                          {% else %}
+                          <img src="{%static 'images/default.PNG'%}" alt="Profile Picture" style="height: 220px; width: 220px; border-radius: 20%;">
+
+                          {% endif %}
                         </div>
                         <div class="col-md-7 my-1">
                           <div class="d-flex flex-column">

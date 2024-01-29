@@ -256,33 +256,51 @@
             
             <div class="container w-75 dashboard-section" id="section4" >
               
-              <form method="post" action="" class="d-flex flex-column justify-content-center">
+              <form method="post" action="{% url 'updateSettings'%}" class="d-flex flex-column justify-content-center">
                 {% csrf_token %}
-                <h2>Clinic Setting Form</h2>
-                  <div class="row">
-                      <div class="col-md-2">
-                          <label for="description">توضیحات:</label>
-                      </div>
-                      <div class="col-md-4">
-                          <textarea name="description" id="description" rows="4" cols="50"></textarea>
-                      </div>
-                  </div>
-                  <div class="row">
-                      <div class="col-md-2">
-                          <label for="opening_time">زمان باز شدن:</label>
-                      </div>
-                      <div class="col-md-4">
-                          <input type="time" name="opening_time" id="opening_time">                </div>
-                  </div>
-                  <div class="row">
-                      <div class="col-md-2">
-                          <label for="closing_time">زمان بستن:</label>
-                      </div>
-                      <div class="col-md-4">
-                          <input type="time" name="closing_time" id="closing_time">
-                      </div>
-                  </div>
-              </form>
+                <h2>اطلاعات کلینیک</h2>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="description">توضیحات:</label>
+                    </div>
+                    <div class="col-md-4">
+                        <textarea name="description" id="description" rows="4" cols="50" placeholder="{{clinicSetting.description}}"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="description">هزینه :</label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="number" name="price" id="your_input" min="20000" max="100000" value="{{clinicSetting.cost}}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="opening_time">زمان باز شدن:</label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="time" name="opening_time" id="opening_time" value="{{clinicSetting.opening_time}}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="closing_time">زمان بستن:</label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="time" name="closing_time" id="closing_time" value="{{clinicSetting.closing_time}}">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-2">
+                        <!-- Add this submit button -->
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary">ثبت</button>
+                    </div>
+                </div>
+            </form>
+            
             </div>
             
             <!--section5-->
@@ -300,24 +318,24 @@
                       
                   </div>
                   <div class="d-flex justify-content-center my-4">
-      
+                    <form method="POST" action="{% url 'changeClinicPassword' %}">
+                      {% csrf_token %}
                       <div class="row col-md-3">
                           <label for="inputPassword5" class="form-label">رمز عبور فعلی</label>
                           <div class="w-100"></div>
-                          <input type="password" id="inputPassword5"  placeholder=" رمز عبور فعلی"class="form-control col-md-2" aria-describedby="passwordHelpBlock">
+                          <input type="password" id="inputPassword5"  placeholder=" رمز عبور فعلی"class="form-control col-md-2" aria-describedby="passwordHelpBlock" name="current_password">
                           <div class="w-100"></div>
                           <div class="p-1"><small>رمز عبور باید حداقل 8 کاراکتر باشد</small></div>
                           <label for="inputPassword5" class="form-label my-4">رمز عبور جدید</label>
                           <div class="w-100"></div>
-                          <input type="password" id="inputPassword5" class="form-control col-md-2" aria-describedby="passwordHelpBlock"placeholder="رمز عبور جدید">
+                          <input type="password" id="inputPassword5" class="form-control col-md-2" aria-describedby="passwordHelpBlock"placeholder="رمز عبور جدید" name="new_password1">
                           <div class="w-100"></div>
-                          <input type="password" id="inputPassword5" class="form-control col-md-2 my-2" aria-describedby="passwordHelpBlock" placeholder="  تکرار رمز عبور جدید">
+                          <input type="password" id="inputPassword5" class="form-control col-md-2 my-2" aria-describedby="passwordHelpBlock" placeholder="  تکرار رمز عبور جدید" name="new_password2">
                           <div class="w-100"></div>
-                          <button class="btn btn-primary"  type="button"> تغییر رمز عبور</button>
+                          <button class="btn btn-primary"  type="submit"> تغییر رمز عبور</button>
                            <div class="w-100"></div>
-                           <a href="" class="my-3 link-underline-light">تغییر رمز عبور با کد یکبار مصرف</a>
                       </div>
-      
+                    </form>
                   </div>
               </div>
               
@@ -330,9 +348,12 @@
                   <h5>آیا مطمئن هستید می خواهید حساب خود را در سایت حذف کنید؟</h5>
                 </div>
                 <div>
-                  <button class="btn btn-primary" type="button">
+                <form action="{% url 'deleteClinicProfile'%}" method="post">
+                  {% csrf_token %}
+                  <button class="btn btn-primary" type="submit">
                     بله
                   </button>
+                </form>
                 </div>
               </div>
             </div>

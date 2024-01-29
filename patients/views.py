@@ -1,5 +1,6 @@
 from decimal import Decimal, InvalidOperation
 from multiprocessing import context
+
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from site import USER_BASE
@@ -7,7 +8,8 @@ from django.shortcuts import redirect, render
 from accounts.forms import UserForm, userProfileForm
 from accounts.models import User, UserProfile
 from django.contrib import messages , auth
-from clinics.models import Clinic
+from clinics.models import Clinic, Comment, Rating
+from clinics.views import clinicProfile
 from patients.models import Patient, Question, Wallet 
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -141,6 +143,7 @@ def activateWallet(request):
         
         return render(request, 'patients/patientDashboard.html', context)
 
+@login_required
 def showWalletInfo(request):
     user = request.user
     patient = Patient.objects.get(user=user)
@@ -187,7 +190,7 @@ def increaseBalance(request):
         return redirect('pprofile')
     
     
-    return render(request , 'patients/patientDashboard.html')
+    return redirect('pprofile')
 
 
 @login_required
@@ -229,3 +232,93 @@ def deletePatientProfile(request):
         return redirect('home')
     else :
         return render(request, 'patients/patientDashboard.html')
+    
+@login_required    
+def putComment(request , clinic_id):
+    
+    user_instance = User.objects.get(id=request.user.id)
+    patient_instance = Patient.objects.get(user=request.user)
+    clinic = Clinic.objects.get(id=clinic_id)
+    
+    existing_comment = Comment.objects.filter(patient=user_instance, clinic=clinic).exists()
+
+    if existing_comment:
+        messages.error(request, 'شما قبلاً نظر داده‌اید.')
+        return redirect(clinicProfile, clinic_id=clinic_id)
+    
+    print(user_instance.role)
+    if user_instance.role != 1 :
+        messages.error(request , 'کلینیک ها نمیتوانند راجع به یکدیگر نظر بدهند')
+        return redirect(clinicProfile , clinic_id=clinic_id)
+
+    else :
+        if request.method == 'POST' :
+            comment_text = request.POST.get('comment_text')
+            if comment_text:
+
+                comment = Comment.objects.create(
+                patient=user_instance,
+                clinic=clinic,
+                comment_text=comment_text
+                )
+                messages.success(request,'نظر شما اضافه شد')
+                return redirect(clinicProfile , clinic_id=clinic_id)
+
+            else : 
+                messages.error(request,'کامنت باید پر شود')
+                return redirect(clinicProfile , clinic_id=clinic_id)
+
+        context = {
+            'comment' : comment
+        }
+        return render(request, 'clinics/clinicProfile.html', context)
+    
+@login_required    
+def putRating(request , clinic_id):
+    
+    user_instance = User.objects.get(id=request.user.id)
+    patient_instance = Patient.objects.get(user=request.user)
+    clinic = Clinic.objects.get(id=clinic_id)
+    
+    existing_rating = Rating.objects.filter(patient=user_instance, clinic=clinic).exists()
+
+    if existing_rating:
+        messages.error(request, 'شما قبلاً امتیاز داده‌اید.')
+        return redirect(clinicProfile, clinic_id=clinic_id)
+    
+    print(user_instance.role)
+    if user_instance.role != 1 :
+        messages.error(request , 'کلینیک ها نمیتوانند راجع به یکدیگر نظر بدهند')
+        return redirect(clinicProfile , clinic_id=clinic_id)
+
+    else :
+        if request.method == 'POST' :
+            score = request.POST.get('score')
+            if score:
+
+                rating = Rating.objects.create(
+                patient=user_instance,
+                clinic=clinic,
+                score=score
+                )
+                messages.success(request,'امتیاز شما اضافه شد')
+                return redirect(clinicProfile , clinic_id=clinic_id)
+
+            else : 
+                messages.error(request,'امتیاز نباید خالی باشد')
+                return redirect(clinicProfile , clinic_id=clinic_id)
+
+        context = {
+            'rating' : rating
+        }
+        return render(request, 'clinics/clinicProfile.html', context)
+    
+    
+
+
+
+
+
+
+            
+    
