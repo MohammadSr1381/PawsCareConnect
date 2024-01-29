@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms import ValidationError
 from accounts.models import User, UserProfile
 from accounts.utils import send_notification
 
@@ -81,3 +82,40 @@ class Clinic(models.Model):
                 send_notification(mail_subject , mail_template , context)
 
         return super(Clinic, self).save(*args , **kwargs)
+
+
+class Comment(models.Model):
+    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='commenter')
+    clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE, related_name='commented')
+    comment_text = models.TextField(blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"comment from {self.patient.email} to {self.clinic.clinic_name}"
+
+
+class ClinicSetting(models.Model):
+    clinic = models.OneToOneField(Clinic, on_delete=models.CASCADE, related_name='clinic_setting')
+    description = models.TextField(blank=True, null=True)
+    opening_time = models.TimeField(blank=True, null=True)
+    closing_time = models.TimeField(blank=True, null=True)
+
+    def clean(self):
+        if self.opening_time and self.closing_time:
+            if self.opening_time >= self.closing_time:
+                raise ValidationError('Closing time must be after opening time.')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+   
+    
+class ClinicSetting(models.Model):
+    clinic = models.OneToOneField(Clinic, on_delete=models.CASCADE, related_name='clinic_setting')
+    description = models.TextField(blank=True, null=True)
+    opening_hours = models.CharField(max_length=100, blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.clinic.clinic_name} - ClinicSetting"

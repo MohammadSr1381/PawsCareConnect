@@ -1,0 +1,21 @@
+.card {
+    width: 17rem; 
+    height: 300px;
+}
+
+.b-example-divider{
+    height: 48px;
+}
+
+#search {
+    background-image: url("../photos/8.jpg");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    border-color: brown;
+}
+
+img {
+    height: 230px;
+}

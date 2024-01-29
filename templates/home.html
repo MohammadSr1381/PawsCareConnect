@@ -83,9 +83,11 @@
                   <li><a class="dropdown-item" href="#">تبریز</a></li>
                   <li><a class="dropdown-item" href="#">قزوین</a></li>
                 </ul>
-                <input type="text" class="form-control" placeholder="جستجوی کلینیک ، آزمایشگاه و..." aria-label="" aria-describedby="button-addon2">
-                
-                <button class="btn btn-outline-secondary" type="button" id="button-addon2">جستجو</button>
+                <form action="{% url 'searchClinic' %}" method="get">
+                <input type="text" class="form-control" placeholder="جستجوی کلینیک ، آزمایشگاه و..." aria-label="" aria-describedby="button-addon2" name="search">
+
+                <button class="btn btn-outline-secondary" type="submit" id="button-addon2" >جستجو</button>
+                </form>
               </div>
             </div>
             

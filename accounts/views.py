@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from base64 import urlsafe_b64decode
 import email
 from email import message
@@ -6,7 +7,7 @@ import re
 from django.shortcuts import render , redirect
 from django.http import HttpResponse
 from accounts.utils import detectUser, send_verification_email
-
+from django.db.models import Q
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
@@ -327,4 +328,32 @@ def reset_password(request):
             
             
         return render (request , 'accounts/reset_password.html')
+    
+
+def searchClinic(request):
+    
+    context = {}
+
+    if request.method == 'GET':
+        search_query = request.GET.get('search', '').strip()
+
+        if search_query:
+            # Use Q objects to combine multiple conditions
+            clinics = Clinic.objects.filter(
+                Q(clinic_name__icontains=search_query) & Q(is_approver=True)
+            )
+            context['clinics'] = clinics
+            context['search_query'] = search_query
+        else:
+            # If no search query, show all clinics with is_approver=True
+            clinics = Clinic.objects.filter(is_approver=True)
+            context['clinics'] = clinics
+    for clinic in clinics :
+        print(clinic.user)
+        print(1)
+        print(2)
+        print(clinic.user.userprofile.profile_picture)
+        print(3)
+        
+    return render(request, 'accounts/searchClinic.html', context)
 

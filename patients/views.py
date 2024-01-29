@@ -89,9 +89,9 @@ def askQuestion(request,clinic_id):
             question_text=question_text
         )
         messages.success(request,'question asked')
-        return redirect('home')
+        return redirect('clinicProfile', clinic_id=clinic.id)
         
-    return render(request, 'temporary/askQuestion.html', context)
+    return render(request, 'clinics/clinicProfile.html', context)
 
 
 @login_required

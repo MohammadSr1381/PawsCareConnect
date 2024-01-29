@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinics</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" integrity="sha384-nU14brUcp6StFntEOOEBvcJm4huWjB0OcIeQ3fltAfSmuZFrkAif0T+UtNGlKKQv" crossorigin="anonymous">
+    <link rel="stylesheet" href="{%static 'css/clinics.css'%}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  
+</head>
+<body>
+    <div class="container-fluid my-5">
+        <div class="row g-2">
+            <!--sidebar-->
+            <div class="col-md-2 ">
+                <div class="d-flex flex-column">
+                    <div>
+                        <span>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel" viewBox="0 0 16 16">
+                            <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z"/>
+                          </svg>
+                          فیلتر
+                        </span>
+                    </div>
+                    <div class="accordion accordion-flush" id="accordionFilter">
+                        <div class="accordion-item">
+                          <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                              شهر
+                            </button>
+                          </h2>
+                          <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the second item's accordion body. Let's imagine this being filled with some actual content.</div>
+                          </div>
+                        </div>
+                        <div class="accordion-item">
+                          <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+                              خدمات
+                            </button>
+                          </h2>
+                          <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <input class="form-control" type="text" placeholder="جستجوی خدمات" id="filterInput">
+                                <div class="form-check">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" value="" id="flexCheckDefault">
+                                    <label class="form-check-label" for="flexCheckDefault">
+                                       رادیوگرافی
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input filter-checkbox" type="checkbox" value="" id="flexCheckChecked" checked>
+                                    <label class="form-check-label" for="flexCheckChecked">
+                                      سونوگرافی
+                                    </label>
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                </div>
+            </div>
+
+
+            <!--doctor's list-->
+            <div class="container col-md-8">
+              <div class="d-flex flex-column justify-content-center">
+                <div class="row justify-content-center">
+                  <div class="input-group w-50">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">کلینیک</button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#">آزمایشگاه</a></li>
+                      <li><a class="dropdown-item" href="#">کلینیک</a></li>
+                      <li><a class="dropdown-item" href="#">همه</a></li>
+                    </ul>
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">شهر</button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#">تهران</a></li>
+                      <li><a class="dropdown-item" href="#">تبریز</a></li>
+                      <li><a class="dropdown-item" href="#">قزوین</a></li>
+                    </ul>
+                    <form action="{% url 'searchClinic' %}" method="get">
+                      <input type="text" class="form-control" placeholder="جستجوی کلینیک ، آزمایشگاه و..." aria-label="" aria-describedby="button-addon2" name="search">
+      
+                      <button class="btn btn-outline-secondary" type="submit" id="button-addon2" >جستجو</button>
+                    </form>
+                  </div>
+                </div>
+                <div class="card rounded-5 shadow-lg my-2">
+                  <div class="card-body  text-primary">
+                    {% for clinic in clinics%}
+                      <div class="row ">
+                        <div class="col-md-3">
+                          <img src="{{clinic.user.userprofile.profile_picture.url}}" alt="Profile Picture" style="height: 220px; width: 220px; border-radius: 20%;">
+                        </div>
+                        <div class="col-md-7 my-1">
+                          <div class="d-flex flex-column">
+                            <h3> {{clinic.clinic_name}}</h3>
+                            <div class="b-example-divider"></div>
+                            <div class="b-example-divider"></div>
+                            <strong>
+                              آدرس کلینیک:
+                             
+                              <span class="text-muted">{{clinic.address}}</span>
+                            </strong>
+                            <div class="b-example-divider"></div>
+                            <a href="{%static 'images/loc.jpg' %}">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-geo-alt" viewBox="0 0 16 16">
+                                <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/>
+                                <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                              </svg>
+                              موقعیت مکانی
+                            </a>
+                            <div class="b-example-divider"></div>
+                            <strong>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-telephone" viewBox="0 0 16 16">
+                                <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"/>
+                              </svg>
+                            {{clinic.user.phone_number}}:  شماره تماس </strong>
+                          </div>                              
+                        </div>
+                          <div class="col-md-2 d-flex flex-column justify-content-end">  
+
+                            <a href="{% url 'clinicProfile' clinic.id %}" class="btn btn-outline-success mt-auto">مشاهده</a>
+                                                      
+                          </div>                        
+                      </div>
+                    {%endfor%}
+                  </div>
+              </div>
+              </div>
+              
+            </div>
+
+
+        </div>
+    </div>  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="{%static 'js/filter.js'%}"></script>  
+  
+</body>
+</html>
+{% endblock %}

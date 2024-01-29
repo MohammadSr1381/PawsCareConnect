@@ -1,4 +1,5 @@
 from dbm import error
+from multiprocessing import context
 from site import USER_BASE
 from django.shortcuts import get_object_or_404, redirect, render
 from accounts.forms import UserForm, userProfileForm
@@ -174,28 +175,32 @@ def answerQuestion(request):
     questions = Question.objects.filter(clinic=clinic)
     
     if request.method == 'POST':
-        answer_form = AnswerForm(request.POST)
-        if answer_form.is_valid():
-            question_id = answer_form.cleaned_data['id']
-            question = get_object_or_404(Question, id=question_id, clinic=clinic)
+        question_id = request.POST.get('id')
+        answer_form = request.POST.get('answer_field')
+        question = get_object_or_404(Question, id=question_id, clinic=clinic)
 
-            question.answer_text = answer_form.cleaned_data['answer_text']
+        if answer_form:
+            question.answer_text = answer_form
             question.is_answered = True
             question.save()
 
             messages.success(request,"جواب شما با موفقیت ثبت شد")
+            return redirect(cprofile)
             
-            return redirect(answerQuestion ,  clinic_id=clinic.id)
-            
-        else :
-            
-            messages.error(request , answer_form.errors)
-            return redirect(answerQuestion , clinic_id=clinic.id)
-    
+        else:
+            messages.error(request, "لطفاً جواب را وارد کنید.")
+            return redirect('cprofile')
+        
     else :
         user_instance = User.objects.get(id=request.user.id)
         clinic = Clinic.objects.get(user=user_instance)
         questions = Question.objects.filter(clinic=clinic)
         context = {'clinic': clinic, 'questions': questions}
         return render(request, 'clinics/clinicDashboard.html', context)
-    
+
+
+
+def clinicProfile(request, clinic_id):
+    clinic = get_object_or_404(Clinic, id=clinic_id)
+    context = {'clinic': clinic}
+    return render(request, 'clinics/clinicProfile.html', context)
