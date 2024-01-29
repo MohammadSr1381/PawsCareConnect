@@ -9,6 +9,8 @@ from clinics.models import Clinic
 from django.contrib import messages , auth
 from django.contrib.auth.decorators import login_required
 from patients.models import Question 
+from django.contrib.auth import update_session_auth_hash
+
 
 
 def cprofile(request):
@@ -53,13 +55,18 @@ def cprofile(request):
             return redirect('cprofile')
 
     else:
+        user_instance = User.objects.get(id=request.user.id)
+        clinic = Clinic.objects.get(user=user_instance)
+        questions = Question.objects.filter(clinic=clinic)
         profile_form = userProfileForm(instance=user_instance.userprofile)
         clinic_form = ClinicForm(instance=clinic_instance)
         context = {
             'user': user_instance,
             'profile_form': profile_form,
             'clinic_form': clinic_form,
-            'location_choices': clinic_instance.LOCATION_CHOICE 
+            'location_choices': clinic_instance.LOCATION_CHOICE ,
+            'clinic': clinic, 
+            'questions': questions
         }
         return render(request, 'clinics/clinicDashboard.html', context)
 
@@ -78,8 +85,9 @@ def deleteClinicProfile(request):
     else :
         return render(request, 'clinics/clinicDashboard.html')
     
-    
-def changePassword(request):
+
+
+def changeClinicPassword(request):
     
     user_instance = User.objects.get(id=request.user.id)
     clinic_instance = Clinic.objects.get(user=request.user)
@@ -89,19 +97,19 @@ def changePassword(request):
         current_password = request.POST.get('current_password')
         new_password1 = request.POST.get('new_password1')
         new_password2 = request.POST.get('new_password2')
-        
-        if user_instance.check_password(current_password):
-            if new_password1 == new_password2:
-               
-                user_instance.set_password(new_password1)
-                user_instance.save()
-                messages.success(request, "رمز شما با موفقیت تغییر یافت")
-            else :
-                messages.error(request , 'رمز جدید و تکرار آن باهم مطابقت ندارد')
-        else :
-            messages.error(request,'رمز شما اشتباه است')
+        if not current_password or not new_password1 or not new_password2:
+            messages.error(request, 'لطفاً تمامی فیلدها را پر کنید')
+        elif not user_instance.check_password(current_password):
+            messages.error(request, 'رمز شما اشتباه است')
+        elif new_password1 != new_password2:
+            messages.error(request, 'رمز جدید و تکرار آن باهم مطابقت ندارد')
+        else:
+            user_instance.set_password(new_password1)
+            user_instance.save()
+            update_session_auth_hash(request, user_instance)
+            messages.success(request, 'رمز شما با موفقیت تغییر یافت')
     
-    return render(request, 'clinics/clinicDashboard.html')
+    return redirect(cprofile)
         
     
     
@@ -185,6 +193,9 @@ def answerQuestion(request):
             return redirect(answerQuestion , clinic_id=clinic.id)
     
     else :
+        user_instance = User.objects.get(id=request.user.id)
+        clinic = Clinic.objects.get(user=user_instance)
+        questions = Question.objects.filter(clinic=clinic)
         context = {'clinic': clinic, 'questions': questions}
         return render(request, 'clinics/clinicDashboard.html', context)
     

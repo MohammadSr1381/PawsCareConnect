@@ -11,4 +11,7 @@ urlpatterns = [
     path('activateWallet/' , views.activateWallet , name = 'activateWallet'),
     path('increaseBalance/' , views.increaseBalance , name = 'increaseBalance'),
     path('showWalletInfo/' , views.showWalletInfo , name = 'showWalletInfo'),
+    path('deletePatientProfile/' , views.deletePatientProfile , name = 'deletePatientProfile'),
+    path('changePassword/' , views.changePassword , name = 'changePassword'),
+    path('viewQuestion/' , views.viewQuestion , name='viewQuestion'),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

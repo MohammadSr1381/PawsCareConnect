@@ -1,0 +1,16 @@
+<!--section6-->
+<div class="container dashboard-section" id="section6">
+  <div class="d-flex flex-column">
+    <div>
+      <h5>آیا مطمئن هستید می خواهید حساب خود را در سایت حذف کنید؟</h5>
+    </div>
+    <div>
+      <form action="{% url 'deleteClinicProfile'%}" method="post">
+      {% csrf_token %}
+      <button class="btn btn-primary" type="submit">
+        بله
+      </button>
+    </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,48 @@
+{% load static %}
+ <!--section4-->
+ <div class="container w-75 my-4 dashboard-section" id="section4">
+    <div class="card rounded-5 shadow-lg ">
+        <div class="card-body  text-primary">
+            <div class="row justify-content-center ">
+              <div class="col-md-12 text-center">
+                  <div class="row justify-content-center">
+                      <hr class="col-md-4 mt-3">
+                      <p class="col-md-2 text-primary">سوالات  من</p>
+                      <hr class="col-md-4 mt-3">
+                  </div>
+                  
+              </div>
+              {% for question in questions %}
+              <div class="col-md-12  my-4 accordion-flush" id="accordionFlushExample1">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header">
+                      <button class="accordion-button collapsed mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                        عنوان سوال:
+                        <span class="text-muted">{{question.question_text}}</span>
+                      </button>
+                    </h2>
+                    <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                      {% if question.is_answered %}
+                      پاسخ:
+                      <span class="text-muted">{{ question.answer_text }}</span>
+                      {% else %}
+                      هنوز پاسخی ثبت نشده است.
+                      {% endif %}
+                    </div>
+                  </div>
+              </div>
+              {% endfor %}
+              <div class="col-md-12 mx-1">
+                <div class="d-flex flex-row-reverse">
+                  <button type="button" class="btn btn-outline-secondary">حذف سوال</button>
+                </div>
+              </div>
+            </div>
+            
+        </div>
+        
+
+  </div>
+  
+
+</div>

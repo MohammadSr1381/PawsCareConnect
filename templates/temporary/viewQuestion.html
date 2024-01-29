@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Your Asked Questions</h2>
+  
+  {% if questions %}
+    <ul>
+      {% for question in questions %}
+        <li>
+          <strong>Question:</strong> {{ question.question_text }}<br>
+          {% if question.is_answered %}
+            <strong>Answer:</strong> {{ question.answer_text }}<br>
+          {% else %}
+            <em>This question has not been answered yet.</em><br>
+          {% endif %}
+          <small>Asked on: {{ question.created_at }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You haven't asked any questions yet.</p>
+  {% endif %}
+{% endblock %}

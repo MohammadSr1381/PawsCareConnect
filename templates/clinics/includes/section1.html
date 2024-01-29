@@ -1,0 +1,59 @@
+{% load static %}
+<!--section1-->
+<form action ="{% url 'cprofile' %}" class="row dashboard-section" method="post" enctype="multipart/form-data" id="section1">
+    {%csrf_token%}
+
+    <div class="col-md-3">
+      <label for="validationDefault01" class="form-label">نام</label>
+      <input type="text" class="form-control" name="first_name" value='{{user.first_name}}' required>
+    </div>
+
+    <div class="col-md-3">
+      <label for="validationDefault02" class="form-label">نام خانوادگی</label>
+      <input type="text" class="form-control" name="last_name" value='{{user.last_name}}' required>
+    </div>
+
+    <div class="col-md-3">
+      <label for="validationDefault05" class="form-label">کدملی</label>
+      <input type="text" class="form-control" name="citizen_id" value="{{ clinic_form.citizen_id.value }}" required>
+  </div>
+  
+    
+    <div class="w-100"></div>
+    <div class="col-md-4 mt-3 ">
+      <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label">ایمیل</label>
+        <input type="email" class="form-control" name="email" value="{{user.email}}" required>
+      </div>
+    </div>
+  
+    <div class="col-md-4 mt-3 ms-4">
+      <label for="validationDefault01" class="form-label">موبایل</label>
+      <input class="form-control" type="text" name="phone_number" value="{{user.phone_number}}" required>
+    </div>
+
+    <div class="col-md-3">
+      <label for="validationDefault03" class="form-label">شهر</label>
+      <select class="form-select" id="validationDefault03" name="city" required>
+          {% for city_code, city_name in clinic_form.instance.LOCATION_CHOICE %}
+              <option value="{{ city_code }}" {% if clinic_form.instance.city == city_code %}selected{% endif %}>{{ city_name }}</option>
+          {% endfor %}
+      </select>
+  </div>
+  
+
+  <div class="col-md-6">
+    <label for="validationDefault05" class="form-label">آدرس</label>
+    <input type="text" class="form-control"  name="address" value="{{ clinic_form.address.value }}" required style="width: 100%;">
+</div>
+
+    <div class="col-md-3">
+      <label for="validationDefault05" class="form-label">عکس پروفایل</label>
+      <input type="file" class="form-control" name="profile_picture">
+    </div>
+
+  
+    <div class="col-12 mt-3">
+      <button class="btn btn-primary" type="submit">ثبت</button>
+    </div>
+  </form>

@@ -9,5 +9,5 @@ urlpatterns = [
     path('lprofile/' , views.lprofile , name = 'lprofile'),
     path('answerQuestion/' , views.answerQuestion , name = 'answerQuestion'),
     path('deleteClinicProfile/' , views.deleteClinicProfile , name = 'deleteClinicProfile'),
-    path('changePassword/' , views.changePassword , name = 'changePassword'),
+    path('changeClinicPassword/' , views.changeClinicPassword , name = 'changeClinicPassword'),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -6,11 +6,12 @@ from site import USER_BASE
 from django.shortcuts import redirect, render
 from accounts.forms import UserForm, userProfileForm
 from accounts.models import User, UserProfile
-from django.contrib import messages
+from django.contrib import messages , auth
 from clinics.models import Clinic
 from patients.models import Patient, Question, Wallet 
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.contrib.auth import update_session_auth_hash
 
 
 def pprofile(request):
@@ -22,8 +23,6 @@ def pprofile(request):
         
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        citizen_id = request.POST.get('citizen_id')
-        print(citizen_id)
         phone_number = request.POST.get('phone_number')
         email = request.POST.get('email')
         profile_picture = request.FILES.get('profile_picture')
@@ -44,19 +43,34 @@ def pprofile(request):
 
             if profile_picture:
                 prof_instance.profile_picture = profile_picture
-            prof_instance.citizen_id = citizen_id
             prof_instance.save()
 
             messages.success(request, "پروفایل شما با موفقیت آپدیت شد")
             return redirect('pprofile')
 
     else:
+        
         profile_form = userProfileForm(instance=user_instance.userprofile)
+        
+        #section4
+        questions = Question.objects.filter(patient=request.user)
+        
+        #section3
+        patient = get_object_or_404(Patient, user=user_instance)
+        wallet = Wallet.objects.get(patient=patient)
+        balance = wallet.balance
+        wallet_is_activated = wallet.is_activated if wallet else False
+        
+        
         context = {
             'user': user_instance,
             'profile_form': profile_form,
+            'questions': questions,
+            'balance' : balance,
+            'wallet_is_activated' : wallet_is_activated,
         }
-        return render(request, 'patients/patientDashboard.html', context)
+        
+        return render(request, 'patients/patientBase.html', context)
 
 
 @login_required
@@ -78,6 +92,19 @@ def askQuestion(request,clinic_id):
         return redirect('home')
         
     return render(request, 'temporary/askQuestion.html', context)
+
+
+@login_required
+def viewQuestion(request):
+    
+    questions = Question.objects.filter(patient=request.user)
+    print(1)
+    context = {
+        'questions': questions,
+    }
+
+    return render(request, 'patients/patientBase.html', context)
+    
 
 
 
@@ -161,3 +188,44 @@ def increaseBalance(request):
     
     
     return render(request , 'patients/patientDashboard.html')
+
+
+@login_required
+def changePassword(request):
+    
+    user_instance = User.objects.get(id=request.user.id)
+    patient_instance = Patient.objects.get(user=request.user)
+    
+    if request.method == 'POST':
+        
+        current_password = request.POST.get('current_password')
+        new_password1 = request.POST.get('new_password1')
+        new_password2 = request.POST.get('new_password2')
+        if not current_password or not new_password1 or not new_password2:
+            messages.error(request, 'لطفاً تمامی فیلدها را پر کنید')
+        elif not user_instance.check_password(current_password):
+            messages.error(request, 'رمز شما اشتباه است')
+        elif new_password1 != new_password2:
+            messages.error(request, 'رمز جدید و تکرار آن باهم مطابقت ندارد')
+        else:
+            user_instance.set_password(new_password1)
+            user_instance.save()
+            update_session_auth_hash(request, user_instance)
+            messages.success(request, 'رمز شما با موفقیت تغییر یافت')
+    
+    return redirect(pprofile)
+
+@login_required
+def deletePatientProfile(request):
+
+    user_instance = User.objects.get(id=request.user.id)
+    patient_instance = Patient.objects.get(user=request.user)
+    
+    if request.method == "POST":
+        user_instance.delete()
+        patient_instance.delete()
+        auth.logout(request) 
+        messages.info(request, 'You are logged out.')
+        return redirect('home')
+    else :
+        return render(request, 'patients/patientDashboard.html')
