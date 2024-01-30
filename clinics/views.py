@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+from django.conf import settings
 from django.db.models import Avg
 
 from dbm import error
@@ -7,12 +9,13 @@ from site import USER_BASE
 from django.shortcuts import get_object_or_404, redirect, render
 from accounts.forms import UserForm, userProfileForm
 from accounts.models import User, UserProfile
+from appointments.models import Appointment, AppointmentSlot
 
 from clinics.forms import AnswerForm, CRUDClinicForm, CRUDUserForm, CRUDUserProfileForm, ClinicForm
 from clinics.models import Clinic, ClinicSetting, Comment, Rating
 from django.contrib import messages , auth
 from django.contrib.auth.decorators import login_required
-from patients.models import Question 
+from patients.models import Patient, Question, Wallet 
 from django.contrib.auth import update_session_auth_hash
 
 
@@ -65,6 +68,11 @@ def cprofile(request):
         profile_form = userProfileForm(instance=user_instance.userprofile)
         clinic_form = ClinicForm(instance=clinic_instance)
         clinicSetting = ClinicSetting.objects.get(clinic=clinic)
+        
+        clinic_instance = Clinic.objects.get(user=user_instance)
+        appointments = Appointment.objects.filter(clinic=clinic_instance , status=False)
+        slots =AppointmentSlot.objects.filter(clinic=clinic)
+        
         context = {
             'user': user_instance,
             'profile_form': profile_form,
@@ -72,7 +80,9 @@ def cprofile(request):
             'location_choices': clinic_instance.LOCATION_CHOICE ,
             'clinic': clinic, 
             'questions': questions,
-            'clinicSetting' : clinicSetting
+            'appointments' : appointments,
+            'clinicSetting' : clinicSetting,
+            'slots' : slots,
         }
         return render(request, 'clinics/clinicDashboard.html', context)
 
@@ -244,12 +254,57 @@ def updateSettings(request):
             clinic_setting.closing_time = closing_time
             clinic_setting.cost = price
             clinic_setting.save()
+            
+        opening_dt = datetime.strptime(opening_time, '%H:%M')
+        closing_dt = datetime.strptime(closing_time, '%H:%M')
+        current_dt = opening_dt
 
-            messages.success(request, "تنظیمات شما با موفقیت آپدیت شد")
-            return redirect('cprofile')
+        while current_dt < closing_dt:
+            existing_slot = AppointmentSlot.objects.filter(
+                clinic=clinic_instance,
+                date=current_dt.date(),
+                start_time=current_dt.time(),
+            ).first()
+
+            if not existing_slot:
+                slot = AppointmentSlot(
+                    clinic=clinic_instance,
+                    date=current_dt.date(),
+                    start_time=current_dt.time(),
+                    end_time=(current_dt + timedelta(hours=1)).time(),
+                )
+                slot.save()
+
+            current_dt += timedelta(hours=1)
+
+        messages.success(request, "تنظیمات شما با موفقیت آپدیت شد")
+        return redirect('cprofile')
         
-    return render(request, 'clinics/clinicDashboard.html', context)
+    return render(request, 'clinics/clinicDashboard.html')
 
 
 
-    
+from django.core.mail import EmailMessage
+
+@login_required    
+def deleteAppointmentsClinic(request,appointment_id):
+    try:
+        user_instance = request.user 
+        clinic_instance = Clinic.objects.get(user=user_instance)
+        wallet_instance = Wallet.objects.get(patient=user_instance.patient)
+        appointment_instance = Appointment.objects.get(id=appointment_id)
+        appointment_instance.delete()
+        wallet_instance.balance += appointment_instance.cost
+        wallet_instance.save()
+        from_email = settings.DEFAULT_FROM_EMAIL
+        patient_email = appointment_instance.patient.user.email
+        subject = 'حذف نوبت'
+        message = f'کلینیک {{appointment_instance.clinic.clinic_name}} نوبت خود با شما در تایم {appointment_instance.appointment_datetime} را حذف کرده است'
+        mail = EmailMessage(subject , message , to=[patient_email])
+        mail.send()
+        
+        messages.success(request , 'نوبت با موفقیت لغو شد')
+    except :
+        messages.error(request , 'قادر به انجام عملیات مورد نظر شما نمی باشیم لطفا بعدا تلاش کنید')
+
+    return redirect(cprofile)

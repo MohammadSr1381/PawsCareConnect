@@ -1,37 +1,62 @@
 {% load static %}
 <!--section 2-->
 <div class="col-md-6 dashboard-section" id="section2">
+    {% if not appointments%}
+        <h1>هیچ نوبتی نگرفته اید</h1>
+    {%else%}
+    {%for appointment in appointments%}
     <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
         <div class="d-flex">
             <div class="flex-shrink-0">
-              <img src="{% static 'images/1.jpg'%}" alt="..." class="rounded" style="height: 100px; width: 100px;">
+                {% if appointment.clinic.user.userprofile.profile_picture %}
+                <img src="{{appointment.clinic.user.userprofile.profile_picture.url}}" alt="..." class="rounded" style="height: 100px; width: 100px;">
+
+              {% else %}
+              <img src="{%static 'images/default.PNG'%}" alt="Profile Picture" style="height: 220px; width: 220px; border-radius: 20%;">
+
+              {% endif %}
             </div>
             <div class="flex-column mt-2">
                 <div class="flex ms-3">
-                    <h4>نام کلینیک</h4>                      
+
+                    <h4> اسم کلینیک : {{appointment.clinic.clinic_name}} </h4>                      
                 </div>
-                
+                {%if appointment.notes%}
+                <div class="flex ms-3 mt-4">              
+                    <strong>اطلاعات اضافی : {{appointment.notes}} </strong>
+                </div>
+                {%else%}
                 <div class="flex ms-3 mt-4">
-                    <strong>وضعیت:</strong>
+                    <strong>اطلاعات اضافی: کاربر اطلاعات اضافی نداده است</strong>
                 </div>
+                {%endif%}
             </div>
             
           </div>
           <div class="row justify-content-center">
                 <div class="col-md-4">
-                    <strong>زمان:</strong>
-                </div>
-                <div class="col-md-4">
-                    <strong>هزینه:</strong>
+                    <strong>تاریخ نوبت :{{appointment.appointment_datetime}}</strong>
                 </div>
                 <div class="w-100"></div>
                 
           </div>
+          <div class="row justify-content-center">
+
+            <div class="col-md-4">
+                <br>
+                <strong>هزینه پرداخت شده : {{appointment.clinic.clinic_setting.cost}}</strong>
+            </div>
+            <div class="w-100"></div>
+            
+            </div>
           <div class="d-flex flex-row-reverse">
             <div class="p-2 ml-0">
-                <button type="button" class="btn btn-outline-info">نظردهی</button>
-
+                <form action="{%url 'deleteAppointmentsPatient' appointment.id%}">
+                <button type="submit" class="btn btn-outline-info">حذف</button>
+                </form>
             </div>
           </div>
     </div>
+    {%endfor%}
+    {%endif%}
   </div>

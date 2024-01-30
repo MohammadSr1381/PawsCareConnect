@@ -152,3 +152,21 @@ EMAIL_PORT = config('EMAIL_PORT' , cast = int)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
+
+
+# celery.py
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+
+from datetime import timedelta
+CELERY_BEAT_SCHEDULE = {
+    'delete-old-appointments': {
+        'task': 'your_app.tasks.delete_old_appointments',
+        'schedule': timedelta(minutes=5),
+    },
+}

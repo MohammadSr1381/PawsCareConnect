@@ -10,6 +10,7 @@
     <title>Document</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" integrity="sha384-nU14brUcp6StFntEOOEBvcJm4huWjB0OcIeQ3fltAfSmuZFrkAif0T+UtNGlKKQv" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{%static 'css/home.css%'}">
     <style>
       .b-example-divider{
         height: 48px;
@@ -70,7 +71,7 @@
         <div class="container-fluid py-5" id="search">
           <div class="row h-100 justify-content-center">
             <div class="d-flex col-md-6">
-              <div class="input-group align-self-center">
+              <div class="input-group align-self-center justify-content-center w-75">
                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">کلینیک</button>
                 <ul class="dropdown-menu">
                   <li><a class="dropdown-item" href="#">آزمایشگاه</a></li>
@@ -84,9 +85,9 @@
                   <li><a class="dropdown-item" href="#">قزوین</a></li>
                 </ul>
                 <form action="{% url 'searchClinic' %}" method="get">
-                <input type="text" class="form-control" placeholder="جستجوی کلینیک ، آزمایشگاه و..." aria-label="" aria-describedby="button-addon2" name="search">
+                  <input type="text" class="form-control" placeholder="جستجوی کلینیک ، آزمایشگاه و..." aria-label="" aria-describedby="button-addon2" name="search">
 
-                <button class="btn btn-outline-secondary" type="submit" id="button-addon2" >جستجو</button>
+                  <button class="btn btn-outline-secondary" type="submit" id="button-addon2" >جستجو</button>
                 </form>
               </div>
             </div>

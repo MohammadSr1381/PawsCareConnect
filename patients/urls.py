@@ -16,6 +16,8 @@ urlpatterns = [
     path('viewQuestion/' , views.viewQuestion , name='viewQuestion'),
     path('putComment/<int:clinic_id>/' , views.putComment  ,name='putComment'),
     path('putRating/<int:clinic_id>/' , views.putRating  ,name='putRating'),
+    path('deleteAppointmentsPatient/<int:appointment_id>' , views.deleteAppointmentsPatient , name='deleteAppointmentsPatient'),
+
 
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

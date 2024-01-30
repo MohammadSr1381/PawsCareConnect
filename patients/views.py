@@ -5,9 +5,12 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from site import USER_BASE
 from django.shortcuts import redirect, render
+from django.conf import settings
+
 from accounts.forms import UserForm, userProfileForm
 from accounts.models import User, UserProfile
 from django.contrib import messages , auth
+from appointments.models import Appointment
 from clinics.models import Clinic, Comment, Rating
 from clinics.views import clinicProfile
 from patients.models import Patient, Question, Wallet 
@@ -64,11 +67,18 @@ def pprofile(request):
         wallet_is_activated = wallet.is_activated if wallet else False
         
         
+       
+        patient_instance = Patient.objects.get(user=user_instance)
+        appointments = Appointment.objects.filter(patient=patient_instance , status=False)
+
+        
+        
         context = {
             'user': user_instance,
             'profile_form': profile_form,
             'questions': questions,
             'balance' : balance,
+            'appointments' : appointments,
             'wallet_is_activated' : wallet_is_activated,
         }
         
@@ -312,6 +322,32 @@ def putRating(request , clinic_id):
             'rating' : rating
         }
         return render(request, 'clinics/clinicProfile.html', context)
+
+from django.core.mail import EmailMessage
+
+@login_required    
+def deleteAppointmentsPatient(request,appointment_id):
+    
+    try:
+        user_instance = request.user 
+        patient_instance = Patient.objects.get(user=user_instance)
+        
+        appointment_instance = Appointment.objects.get(id=appointment_id)
+        appointment_instance.delete()
+        
+        from_email = settings.DEFAULT_FROM_EMAIL
+        clinic_email = appointment_instance.clinic.user.email
+        subject = 'حذف نوبت'
+        message = f'کاربر نوبت خود با شما در تایم {appointment_instance.appointment_datetime} را حذف کرده است'
+        mail = EmailMessage(subject , message , to=[clinic_email])
+        mail.send()
+        messages.success(request , 'نوبت با موفقیت لغو شد')
+    except :
+        messages.error(request , 'قادر به انجام عملیات مورد نظر شما نمی باشیم لطفا بعدا تلاش کنید')
+
+
+    return redirect(pprofile)
+
     
     
 
