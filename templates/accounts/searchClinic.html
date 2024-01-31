@@ -71,27 +71,29 @@
             <!--doctor's list-->
             <div class="container col-md-8">
               <div class="d-flex flex-column justify-content-center">
-                <div class="row justify-content-center">
-                  <div class="input-group w-50">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">کلینیک</button>
+                <div class="d-flex justify-content-center">
+                  <div class="row input-group align-self-center justify-content-center w-75">
+                    <button class="col-md-2 btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">کلینیک</button>
                     <ul class="dropdown-menu">
                       <li><a class="dropdown-item" href="#">آزمایشگاه</a></li>
                       <li><a class="dropdown-item" href="#">کلینیک</a></li>
                       <li><a class="dropdown-item" href="#">همه</a></li>
                     </ul>
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">شهر</button>
+                    <button class="col-md-2 btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">شهر</button>
                     <ul class="dropdown-menu">
                       <li><a class="dropdown-item" href="#">تهران</a></li>
                       <li><a class="dropdown-item" href="#">تبریز</a></li>
                       <li><a class="dropdown-item" href="#">قزوین</a></li>
                     </ul>
-                    <form action="{% url 'searchClinic' %}" method="get">
+                    <form class="d-flex col-md-4" action="{% url 'searchClinic' %}" method="get">
                       <input type="text" class="form-control" placeholder="جستجوی کلینیک ، آزمایشگاه و..." aria-label="" aria-describedby="button-addon2" name="search">
-      
+    
                       <button class="btn btn-outline-secondary" type="submit" id="button-addon2" >جستجو</button>
                     </form>
                   </div>
                 </div>
+                
+              </div>
                 <div class="card rounded-5 shadow-lg my-2">
                   <div class="card-body  text-primary">
                     {% for clinic in clinics%}

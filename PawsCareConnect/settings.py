@@ -163,10 +163,24 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
 
+from celery import Celery
+from celery.schedules import crontab
+
+app = Celery('PawsCareConnect')
+app.config_from_object('django.conf:settings', namespace='CELERY')
+
+# Load task modules from all registered Django app configs.
+app.autodiscover_tasks()
+
 from datetime import timedelta
 CELERY_BEAT_SCHEDULE = {
     'delete-old-appointments': {
         'task': 'your_app.tasks.delete_old_appointments',
         'schedule': timedelta(minutes=5),
     },
+    'update-appointment-slots': {
+        'task': 'your_app.tasks.update_appointment_slots',
+        'schedule': crontab(minute=0, hour=0, day_of_week='monday'),  # Adjust as needed
+    },
 }
+
