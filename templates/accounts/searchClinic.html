@@ -69,30 +69,53 @@
 
 
             <!--doctor's list-->
+          
             <div class="container col-md-8">
               <div class="d-flex flex-column justify-content-center">
-                <div class="d-flex justify-content-center">
-                  <div class="row input-group align-self-center justify-content-center w-75">
-                    <button class="col-md-2 btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">کلینیک</button>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#">آزمایشگاه</a></li>
-                      <li><a class="dropdown-item" href="#">کلینیک</a></li>
-                      <li><a class="dropdown-item" href="#">همه</a></li>
-                    </ul>
-                    <button class="col-md-2 btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">شهر</button>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#">تهران</a></li>
-                      <li><a class="dropdown-item" href="#">تبریز</a></li>
-                      <li><a class="dropdown-item" href="#">قزوین</a></li>
-                    </ul>
-                    <form class="d-flex col-md-4" action="{% url 'searchClinic' %}" method="get">
-                      <input type="text" class="form-control" placeholder="جستجوی کلینیک ، آزمایشگاه و..." aria-label="" aria-describedby="button-addon2" name="search">
-    
-                      <button class="btn btn-outline-secondary" type="submit" id="button-addon2" >جستجو</button>
-                    </form>
+                <div class="row justify-content-center">
+                  <div class="d-flex flex-column justify-content-center">
+                      <div class="input-group align-self-center justify-content-center">
+                          <form class="row col-md-12 justify-content-center" action="{% url 'searchClinic' %}" method="get">
+                              <div class="col-md-2">
+                                  <select class="form-select " name="city">
+                                    <option value="" selected>همه شهر ها</option>
+                                    <option value="1">تهران</option>
+                                    <option value="2">تبریز</option>
+                                    <option value="3">اصفهان</option>
+                                    <option value="4">شیراز</option>
+                                    <option value="5">کرج</option>
+                                    <option value="6">مشهد</option>
+                                    <option value="7">قم</option>
+                                    <option value="8">اهواز</option>
+                                    <option value="9">کرمانشاه</option>
+                                    <option value="10">رشت</option>
+                                    <option value="11">ارومیه</option>
+                                    <option value="12">زاهدان</option>
+                                    <option value="13">همدان</option>
+                                    <option value="14">کرمان</option>
+                                    <option value="15">یزد</option>
+                                    <option value="16">اربیل</option>
+                                    <option value="17">بندر عباس</option>
+                                    <option value="18">اراک</option>
+                                  </select>
+                              </div>
+                              <div class="col-md-2">
+                                  <select class="form-select" name="clinic_type">
+                                    <option value="" selected>همه</option>
+                                    <option value="type1">کلینیک</option>
+                                    <option value="type2">آزمایشگاه</option>
+                                  </select>
+                              </div>
+                              <div class="col-md-5">
+                                  <input type="text" class="form-control" placeholder="Search clinics, labs, etc." name="clinic_name">
+                              </div>
+                              <div class="d-flex col-md-2">
+                                  <button class="btn btn-outline-secondary flex-grow-1" type="submit">جستجو</button>
+                              </div>
+                          </form>
+                      </div>
                   </div>
-                </div>
-                
+              </div>
               </div>
                 <div class="card rounded-5 shadow-lg my-2">
                   <div class="card-body  text-primary">

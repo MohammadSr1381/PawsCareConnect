@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser , BaseUserManager
 
@@ -146,4 +147,40 @@ class UserProfile(models.Model):
     
     def __str__(self):
         return self.user.email
-  
+
+
+
+class Permission(models.Model):
+    
+    name = models.CharField(max_length=50 , default='permission')
+
+    patientRating = models.BooleanField(default=False)
+    patientComment = models.BooleanField(default=False)
+    patientSignUp = models.BooleanField(default=False)
+    patientLogin = models.BooleanField(default=False)
+    clinicRating = models.BooleanField(default=False)
+    clinicComment = models.BooleanField(default=False)
+    clinicSignUp = models.BooleanField(default=False)
+    clinicLogin = models.BooleanField(default=False)
+    askQuestion = models.BooleanField(default=False)
+    answerQuestion = models.BooleanField(default=False)
+
+
+    _singleton_instance = None
+
+    def save(self, *args, **kwargs):
+        if not self.pk and Permission.objects.exists():
+            raise Permission.DoesNotExist(
+                "There can only be one Permission instance. Edit the existing instance."
+            )
+        super().save(*args, **kwargs)
+        Permission._singleton_instance = self
+
+    @classmethod
+    def get_singleton(cls):
+        # Get or create the singleton instance
+        if cls._singleton_instance is None:
+            cls._singleton_instance, created = cls.objects.get_or_create(pk=1)
+        return cls._singleton_instance
+    
+    

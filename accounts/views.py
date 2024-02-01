@@ -22,6 +22,14 @@ from .models import User, UserProfile
 from django.contrib import messages ,auth
 from django.contrib.auth.decorators import login_required , user_passes_test
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
+
+def validate_persian_characters(request,value,temp):
+    if not all(char.isalpha() and char.isascii() and ('\u0600' <= char <= '\u06FF' or '\u0750' <= char <= '\u077F' or '\uFB8A' <= char <= '\uFBFE') for char in value):
+        messages.error(request,'لطفا اطلاعات خود را به زبان فارسی وارد کنید')
+        return redirect(temp)
 
 
 def check_role_patient(user):
@@ -69,6 +77,15 @@ def registerUser(request):
             user = User.objects.create_user(first_name = first_name , last_name = last_name , phone_number = phone_number , email = email, password = password)
             patient = Patient.objects.create(user=user , user_profile=UserProfile.objects.get(user=user))
             
+            validate_persian_characters(value=first_name, request=request ,temp=registerUser)
+            validate_persian_characters(value=last_name, request=request ,temp=registerUser)
+            
+            try:
+                validate_password(password, user=User)
+            except ValidationError as e:
+                messages.error(request , 'رمز عبور تعریف شده شما ساده تر از استاندارد است')
+                return render(request, 'accounts/registerUser.html', {'form': form})
+            
             user.role = User.PATIENT    
             user.save()
             patient.save()
@@ -112,6 +129,18 @@ def registerClinic(request):
             citizen_id = clinic_form.cleaned_data['citizen_id']
             city = clinic_form.cleaned_data['city']
             address = clinic_form.cleaned_data['address']
+            
+            validate_persian_characters(value=first_name, request=request ,temp=registerClinic)
+            validate_persian_characters(value=last_name, request=request ,temp=registerClinic)
+            validate_persian_characters(value=clinic_name, request=request ,temp=registerClinic)
+            validate_persian_characters(value=address, request=request ,temp=registerClinic)
+
+            try:
+                validate_password(password, user=User)
+            except ValidationError as e:
+                messages.error(request , 'رمز عبور تعریف شده شما ساده تر از استاندارد است')
+                return render(request, 'accounts/registerUser.html', {'form': form})
+            
             
             user = User.objects.create_user(first_name = first_name , last_name = last_name , phone_number = phone_number , email = email, password = password)
             user.role = User.CLINIC  
@@ -167,6 +196,19 @@ def registerLaboratory(request):
             citizen_id = clinic_form.cleaned_data['citizen_id']
             city = clinic_form.cleaned_data['city']
             address = clinic_form.cleaned_data['address']
+            
+            validate_persian_characters(value=first_name, request=request ,temp=registerLaboratory)
+            validate_persian_characters(value=last_name, request=request ,temp=registerLaboratory)
+            validate_persian_characters(value=clinic_name, request=request ,temp=registerLaboratory)
+            validate_persian_characters(value=address, request=request ,temp=registerLaboratory)
+
+            
+            try:
+                validate_password(password, user=User)
+            except ValidationError as e:
+                messages.error(request , 'رمز عبور تعریف شده شما ساده تر از استاندارد است')
+                return render(request, 'accounts/registerUser.html', {'form': form})
+            
             
             user = User.objects.create_user(first_name = first_name , last_name = last_name , phone_number = phone_number , email = email, password = password)
             user.role = User.LABORATORY 
@@ -318,6 +360,15 @@ def reset_password(request):
                 pk = request.session.get('uid')
                 user = User.objects.get(pk=pk)
                 user.set_password(password)
+                
+                try:
+                    validate_password(password, user=User)
+                except ValidationError as e:
+                    messages.error(request , 'رمز عبور تعریف شده شما ساده تر از استاندارد است')
+                    return redirect('reset_password')
+            
+                
+                
                 user.is_active = True
                 user.save()
                 messages.success(request , 'password changed successfully')
@@ -331,29 +382,35 @@ def reset_password(request):
     
 
 def searchClinic(request):
-    
     context = {}
 
-    if request.method == 'GET':
-        search_query = request.GET.get('search', '').strip()
+    city =request.GET.get('city')
+    clinic_type = request.GET.get('clinic_type')
+    clinic_name = request.GET.get('clinic_name')
+    print('City:', city)
+    print('Clinic Type:', clinic_type)
+    clinics_query = Q(is_approver=True)
 
-        if search_query:
-            # Use Q objects to combine multiple conditions
-            clinics = Clinic.objects.filter(
-                Q(clinic_name__icontains=search_query) & Q(is_approver=True)
-            )
-            context['clinics'] = clinics
-            context['search_query'] = search_query
-        else:
-            # If no search query, show all clinics with is_approver=True
-            clinics = Clinic.objects.filter(is_approver=True)
-            context['clinics'] = clinics
-    for clinic in clinics :
-        print(clinic.user)
-        print(1)
-        print(2)
-        print(clinic.user.userprofile.profile_picture)
-        print(3)
-        
+    if city:
+        try:
+            city = int(city)
+            clinics_query &= Q(city=city)
+        except ValueError:
+            print('Invalid city value:', city)
+            
+
+    if clinic_type == '2':
+        clinics_query &= Q(user__role=2)  # Role 2 represents کلینیک
+    elif clinic_type == '3':
+        clinics_query &= Q(user__role=3)  # Role 3 represents آزمایشگاه
+
+    if clinic_name:
+        clinics_query &= Q(clinic_name__icontains=clinic_name)
+
+    clinics = Clinic.objects.filter(clinics_query)
+    context['clinics'] = clinics
+    context['city'] = city
+    context['clinic_type'] = clinic_type
+    context['clinic_name'] = clinic_name
+
     return render(request, 'accounts/searchClinic.html', context)
-

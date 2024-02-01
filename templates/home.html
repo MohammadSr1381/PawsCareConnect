@@ -10,7 +10,7 @@
     <title>Document</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" integrity="sha384-nU14brUcp6StFntEOOEBvcJm4huWjB0OcIeQ3fltAfSmuZFrkAif0T+UtNGlKKQv" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="{%static 'css/home.css%'}">
+    <link rel="stylesheet" href="{%static 'css/home.css'%}">
     <style>
       .b-example-divider{
         height: 48px;
@@ -27,6 +27,12 @@
 
     </style>
 </head>
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" integrity="sha384-eOJMYsdzHLe+5e9z4XpCzqF1S/Z9iX/LphJ1otKu2MKLsEIlmG8BrNEeFByEBbo" crossorigin="anonymous">
+
+<!-- Bootstrap JS Bundle (including Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8+Uqec9zZxgK6K/rF5hXdGweyI8Ri/St4/QFD3Z5tr5J1HzacKYqDFbfmLfo" crossorigin="anonymous"></script>
+
 <body data-bs-spy="scroll" >
     <nav class="navbar navbar-expand-md navbar-dark bg-dark text-right" aria-label="Fourth navbar example">
         <div class="container-fluid">
@@ -72,23 +78,42 @@
           <div class="row h-100 justify-content-center">
             <div class="d-flex justify-content-center">
               <div class="row input-group align-self-center justify-content-center w-75">
-                <button class="col-md-2 btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">کلینیک</button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">آزمایشگاه</a></li>
-                  <li><a class="dropdown-item" href="#">کلینیک</a></li>
-                  <li><a class="dropdown-item" href="#">همه</a></li>
-                </ul>
-                <button class="col-md-2 btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">شهر</button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">تهران</a></li>
-                  <li><a class="dropdown-item" href="#">تبریز</a></li>
-                  <li><a class="dropdown-item" href="#">قزوین</a></li>
-                </ul>
-                <form class="d-flex col-md-4" action="{% url 'searchClinic' %}" method="get">
-                  <input type="text" class="form-control" placeholder="جستجوی کلینیک ، آزمایشگاه و..." aria-label="" aria-describedby="button-addon2" name="search">
-
-                  <button class="btn btn-outline-secondary" type="submit" id="button-addon2" >جستجو</button>
-                </form>
+                
+                <form class="d-flex col-md-7" action="{% url 'searchClinic' %}" method="get">
+                
+              
+                  <select  class="form-select dropup" name="city">
+                      <option value="" selected>همه شهر ها</option>
+                      <option value="1">تهران</option>
+                      <option value="2">تبریز</option>
+                      <option value="3">اصفهان</option>
+                      <option value="4">شیراز</option>
+                      <option value="5">کرج</option>
+                      <option value="6">مشهد</option>
+                      <option value="7">قم</option>
+                      <option value="8">اهواز</option>
+                      <option value="9">کرمانشاه</option>
+                      <option value="10">رشت</option>
+                      <option value="11">ارومیه</option>
+                      <option value="12">زاهدان</option>
+                      <option value="13">همدان</option>
+                      <option value="14">کرمان</option>
+                      <option value="15">یزد</option>
+                      <option value="16">اربیل</option>
+                      <option value="17">بندر عباس</option>
+                      <option value="18">اراک</option>
+                  </select>
+              
+                  <select class="form-select" name="clinic_type">
+                      <option value="" selected>همه</option>
+                      <option value="2">کلینیک</option>
+                      <option value="3">آزمایشگاه</option>
+                      <!-- Add the rest of the clinic types -->
+                  </select>
+                  <input style="width: 200px" type="text" class="form-control" placeholder="کلینیک مورد نظر را جستجو کنید" name="clinic_name">
+                  <button class="btn btn-outline-secondary" type="submit"  id="button-addon2" >جستجو</button>
+              </form>
+              
               </div>
             </div>
             
@@ -105,24 +130,24 @@
         <div class="container mt-3">
           <div class="row justify-content-around">
             <div class="col-sm-3 mb-3 mb-sm-0">
-              <a class="card text-decoration-none overflow-hidden rounded-4" href="#" style="width: 17rem; height: 260px;">
-                <img src="{% static 'images/7.jpg' %}" class="card-img-top" alt="...">
+              <a class="card text-decoration-none overflow-hidden rounded-4" href="#">
+                <img src="{%static 'images/7.jpg'%}" class="card-img-top" alt="..." >
                 <div class="card-body">
                   <h5 class="card-title text-center">نوبت دهی</h5>
                 </div>
               </a>
             </div>
             <div class="col-sm-3">
-              <a class="card text-decoration-none overflow-hidden rounded-4" href="#" style="width: 17rem;height: 260px;">
-                <img src="{% static 'images/7.jpg' %}" class="card-img-top " alt="..." style="">
+              <a class="card text-decoration-none overflow-hidden rounded-4" href="#">
+                <img src="{%static 'images/7.jpg'%}" class="card-img-top " alt="...">
                 <div class="card-body">
                   <h5 class="card-title text-center">مشاوره</h5>
                 </div>
               </a>
             </div>
             <div class="col-sm-3">
-             <a class="card text-decoration-none overflow-hidden rounded-4" href="#" style="width: 17rem;height: 260px;">
-                <img src="{% static 'images/7.jpg' %}" class="card-img-top" alt="...">
+             <a class="card text-decoration-none overflow-hidden rounded-4" href="#" style="width: 17rem;height: 300px;">
+                <img src="{%static 'images/7.jpg'%}" class="card-img-top" alt="..." height="230px">
                 <div class="card-body">
                   <h5 class="card-title text-center">سوالات متداول</h5>
                 </div>
@@ -147,24 +172,24 @@
 
           <div class="row justify-content-around">
             <div class="col-md-2 mx-2 text-center">
-              <img src="{% static 'photos/guide-1.svg'%}" alt="">
+              <img src="{% static 'images/guide-1.svg'%}" alt="">
               <p>در سایت ما ثبت نام کنید</p>
             </div>
          
             <div class="col-md-2 mx-2 text-center">
-              <img src="{% static 'photos/guide-2.svg'%}" alt="">
+              <img src="{% static 'images/guide-2.svg'%}" alt="">
               <p>کلینیک یا خدمات مورد نظر خود را جستجو کنید</p>
             </div>
             <div class="col-md-2 mx-2 text-center">
-              <img src="{% static 'photos/guide-3.svg'%}" alt="">
+              <img src="{% static 'images/guide-3.svg'%}" alt="">
               <p>تمام اطلاعات دامپزشکی را مشاهده و بررسی کنید</p>
             </div>
             <div class="col-md-2 mx-2 text-center">
-              <img src="{% static 'photos/guide-4.svg'%}" alt="">
+              <img src="{% static 'images/guide-4.svg'%}" alt="">
               <p>نوبت خود را رزرو کنید</p>
             </div>
             <div class="col-md-2 mx-2 text-center">
-              <img src="{% static 'photos/guide-5.svg'%}" alt="">
+              <img src="{% static 'images/guide-5.svg'%}" alt="">
               <p>امتیاز بدهید و تجربه خود را بادیگران به اشتراک بگذارید</p>
             </div>
           </div>

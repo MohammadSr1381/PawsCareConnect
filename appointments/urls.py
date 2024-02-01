@@ -5,4 +5,6 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('create_appointment<int:clinic_id>/<int:slot_id>/', views.create_appointment, name='create_appointment'),
+    path('todayAppointments/<int:clinic_id>', views.todayAppointments, name='todayAppointments'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

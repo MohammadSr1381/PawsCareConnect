@@ -17,8 +17,9 @@ from django.contrib import messages , auth
 from django.contrib.auth.decorators import login_required
 from patients.models import Patient, Question, Wallet 
 from django.contrib.auth import update_session_auth_hash
+from django.utils import timezone
 
-
+from django.utils import timezone
 
 def cprofile(request):
     
@@ -69,12 +70,31 @@ def cprofile(request):
         clinic_form = ClinicForm(instance=clinic_instance)
         clinicSetting = ClinicSetting.objects.get(clinic=clinic)
         
+        
+
+  
         clinic_instance = Clinic.objects.get(user=user_instance)
         appointments = Appointment.objects.filter(clinic=clinic_instance , status=False)
         slots =AppointmentSlot.objects.filter(clinic=clinic)
-        
+        for appointment in appointments :
+            print(appointment.appointment_datetime)
+
+
+        today_local = datetime.now().date()
+
+        start_of_day = datetime.combine(today_local, datetime.min.time())
+        end_of_day = datetime.combine(today_local, datetime.max.time())
+        print(start_of_day)
+        # Filter appointments for the local date (ignoring time)
+        today_appointments = Appointment.objects.filter(
+            appointment_datetime__range=(start_of_day, end_of_day)
+        )
+  
+        print("Clinic:", clinic)
+        print("Appointments:", today_appointments)
         context = {
             'user': user_instance,
+            'today_appointments': today_appointments,
             'profile_form': profile_form,
             'clinic_form': clinic_form,
             'location_choices': clinic_instance.LOCATION_CHOICE ,

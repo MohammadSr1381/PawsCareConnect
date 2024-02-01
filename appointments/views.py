@@ -39,3 +39,18 @@ def create_appointment(request, clinic_id, slot_id):
     else:
         messages.error(request , 'زمان مورد نظر شما خالی نمیباشد')
         return redirect(clinicProfile , clinic_id)
+
+
+from django.shortcuts import render
+from datetime import datetime
+from django.utils import timezone
+
+@login_required
+def todayAppointments(request ):
+   
+
+    today = timezone.now().date()
+    clinic = Clinic.objects.get(user=request.user)
+    appointments = Appointment.objects.filter(clinic=clinic,appointment_datetime__date=today)
+    context = {'today_appointments': appointments}
+    return render(request, 'clinics/clinicDashboard.html', context)

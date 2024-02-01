@@ -8,7 +8,7 @@ from django.shortcuts import redirect, render
 from django.conf import settings
 
 from accounts.forms import UserForm, userProfileForm
-from accounts.models import User, UserProfile
+from accounts.models import Permission, User, UserProfile
 from django.contrib import messages , auth
 from appointments.models import Appointment
 from clinics.models import Clinic, Comment, Rating
@@ -245,8 +245,13 @@ def deletePatientProfile(request):
     
 @login_required    
 def putComment(request , clinic_id):
-    
+    permission = Permission.objects.get(name='permission')
     user_instance = User.objects.get(id=request.user.id)
+    print(user_instance.role)
+    if user_instance.role != 1 or permission.clinicComment:
+        messages.error(request , 'کلینیک ها نمیتوانند راجع به یکدیگر نظر بدهند')
+        return redirect(clinicProfile , clinic_id=clinic_id)  
+  
     patient_instance = Patient.objects.get(user=request.user)
     clinic = Clinic.objects.get(id=clinic_id)
     
@@ -256,12 +261,10 @@ def putComment(request , clinic_id):
         messages.error(request, 'شما قبلاً نظر داده‌اید.')
         return redirect(clinicProfile, clinic_id=clinic_id)
     
-    print(user_instance.role)
-    if user_instance.role != 1 :
-        messages.error(request , 'کلینیک ها نمیتوانند راجع به یکدیگر نظر بدهند')
-        return redirect(clinicProfile , clinic_id=clinic_id)
-
     else :
+        if (permission.patientComment != False):
+            messages.error(request,'فعلا امکان کامنت دهی بسته شده است')
+            return redirect(clinicProfile , clinic_id=clinic_id)
         if request.method == 'POST' :
             comment_text = request.POST.get('comment_text')
             if comment_text:
@@ -285,8 +288,14 @@ def putComment(request , clinic_id):
     
 @login_required    
 def putRating(request , clinic_id):
-    
+    permission = Permission.objects.get(name='permission')
     user_instance = User.objects.get(id=request.user.id)
+    
+    print(user_instance.role)
+    if user_instance.role != 1 or permission.clinicRating:
+        messages.error(request , 'کلینیک ها نمیتوانند به هم امتیاز دهند')
+        return redirect(clinicProfile , clinic_id=clinic_id)
+    
     patient_instance = Patient.objects.get(user=request.user)
     clinic = Clinic.objects.get(id=clinic_id)
     
@@ -296,12 +305,12 @@ def putRating(request , clinic_id):
         messages.error(request, 'شما قبلاً امتیاز داده‌اید.')
         return redirect(clinicProfile, clinic_id=clinic_id)
     
-    print(user_instance.role)
-    if user_instance.role != 1 :
-        messages.error(request , 'کلینیک ها نمیتوانند راجع به یکدیگر نظر بدهند')
-        return redirect(clinicProfile , clinic_id=clinic_id)
+
 
     else :
+        if (permission.patientRating !=False) :
+            messages.error(request,'فعلا امکان امتیاز دهی بسته شده است')
+            return redirect(clinicProfile , clinic_id=clinic_id)
         if request.method == 'POST' :
             score = request.POST.get('score')
             if score:
