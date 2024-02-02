@@ -1,12 +1,16 @@
 from decimal import Decimal, InvalidOperation
 from multiprocessing import context
+import os
+from django.contrib.auth.password_validation import validate_password
+from django.forms import ValidationError
 
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from site import USER_BASE
 from django.shortcuts import redirect, render
+from django.urls import reverse
+import stripe
 from django.conf import settings
-
 from accounts.forms import UserForm, userProfileForm
 from accounts.models import Permission, User, UserProfile
 from django.contrib import messages , auth
@@ -18,6 +22,12 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib.auth import update_session_auth_hash
 
+
+STRIPE_PUBLIC_KEY='pk_test_51OfMFDCdqFdqb6OvcHnyyuCNEhFvWSQE78LIM3sHn6jxSxpJz3q2XZVt1WVhgtYoij9gU4dNT7Qy90zPtbpZtEZa00LDMDP0iC'
+STRIPE_PRIVATE_KEY='sk_test_51OfMFDCdqFdqb6OvAclfrAMaGHjDn4uvkv43J65ittWGebtyzKuh685i8jAiCdnD0LrVDswTQM3nWB29s8N0sgSl00BG36NVtU'
+
+
+stripe.api_key = STRIPE_PRIVATE_KEY
 
 def pprofile(request):
     
@@ -100,7 +110,7 @@ def askQuestion(request,clinic_id):
             clinic=clinic,
             question_text=question_text
         )
-        messages.success(request,'question asked')
+        messages.success(request,'سوال شما ثبت شد')
         return redirect('clinicProfile', clinic_id=clinic.id)
         
     return render(request, 'clinics/clinicProfile.html', context)
@@ -151,7 +161,7 @@ def activateWallet(request):
             'wallet_is_activated' : wallet_is_activated
         }
         
-        return render(request, 'patients/patientDashboard.html', context)
+        return render(request, 'patients/patientBase.html', context)
 
 @login_required
 def showWalletInfo(request):
@@ -164,15 +174,15 @@ def showWalletInfo(request):
         'wallet' : wallet
     }
     
-    return render(request, 'patients/patientDashboard.html', context)
+    return render(request, 'patients/patientBase.html', context)
 
 @require_POST
 def increaseBalance(request):
-    
+
     amount_str = request.POST.get('amount', '0')
     try:
         amount = Decimal(amount_str)
-    except InvalidOperation:  # Catch InvalidOperation from the decimal module
+    except InvalidOperation: 
         messages.error(request, 'مبلغ وارد شده معتبر نیست')
         return redirect('pprofile')
     
@@ -190,17 +200,29 @@ def increaseBalance(request):
     amount = float(request.POST.get('amount', 0))
 
     if 10000 <= amount <= 200000:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',  
+                    'product_data': {
+                        'name': 'افزایش شارژ',
+                    },
+                    'unit_amount': int(amount), 
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=request.build_absolute_uri(reverse('pprofile')),
+            cancel_url=request.build_absolute_uri(reverse('pprofile')),
+        )
         wallet.balance += Decimal(amount)
         wallet.save()
-
         messages.success(request, f'موجودی با مبلغ {amount} تومان افزایش یافت.')
-        
+        return redirect(pprofile)
     else:
-        messages.error(request, 'مبلغ میتواند بین 10 هزار تا 200 هزار تومان باشد')
-        return redirect('pprofile')
-    
-    
-    return redirect('pprofile')
+        messages.error(request, 'مبلغ می‌تواند بین 10 هزار تا 200 هزار تومان باشد')
+        return redirect(pprofile)
 
 
 @login_required
@@ -221,6 +243,11 @@ def changePassword(request):
         elif new_password1 != new_password2:
             messages.error(request, 'رمز جدید و تکرار آن باهم مطابقت ندارد')
         else:
+            try:
+                validate_password(new_password1, user=user_instance)
+            except ValidationError as e:
+                messages.error(request , 'رمز عبور تعریف شده شما ساده تر از استاندارد است')
+                return render(request, 'patients/patientBase.html') 
             user_instance.set_password(new_password1)
             user_instance.save()
             update_session_auth_hash(request, user_instance)
@@ -241,7 +268,7 @@ def deletePatientProfile(request):
         messages.info(request, 'You are logged out.')
         return redirect('home')
     else :
-        return render(request, 'patients/patientDashboard.html')
+        return render(request, 'patients/patientBase.html')
     
 @login_required    
 def putComment(request , clinic_id):

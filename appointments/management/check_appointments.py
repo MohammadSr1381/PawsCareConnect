@@ -19,7 +19,6 @@ class Command(BaseCommand):
             self.send_appointment_email(appointment)
 
     def send_appointment_email(self, appointment):
-        # Customize the email sending logic here
         subject = 'یادآوری'
         message = f'سلام {appointment.patient.user.first_name},\n\nشما امروز نوبتی دارید {appointment.appointment_datetime}.\n\nبا تشکر از نوبت دهی'
         from_email = settings.DEFAULT_FROM_EMAIL

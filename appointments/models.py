@@ -56,3 +56,10 @@ class AppointmentSlot(models.Model):
                 start_time += timedelta(hours=1)
 
             current_date += timedelta(days=1)
+            
+            
+class PaymentIntent(models.Model):
+    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE , related_name='intentUser')
+    appointment = models.ForeignKey(Appointment , on_delete=models.CASCADE , related_name='intentAppointment')
+    intent_id = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -26,10 +26,17 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
-def validate_persian_characters(request,value,temp):
-    if not all(char.isalpha() and char.isascii() and ('\u0600' <= char <= '\u06FF' or '\u0750' <= char <= '\u077F' or '\uFB8A' <= char <= '\uFBFE') for char in value):
-        messages.error(request,'لطفا اطلاعات خود را به زبان فارسی وارد کنید')
-        return redirect(temp)
+
+
+def validate_persian_characters(request,value):
+    persian_alphabet = ' ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی'
+    if not all(char in persian_alphabet for char in value):
+        messages.error(request, 'لطفا اطلاعات خود را به زبان فارسی وارد کنید')
+        print(1)
+        return True
+    else:
+        print(2)
+        return False
 
 
 def check_role_patient(user):
@@ -62,7 +69,7 @@ def roleClass(request):
 
 def registerUser(request):
     if request.user.is_authenticated:
-        messages.warning(request,'u r already logged in')
+        messages.warning(request,'در حال حاضر داخل هستید')
         return redirect('dashboard')
     elif request.method == "POST" :
         
@@ -74,11 +81,10 @@ def registerUser(request):
             phone_number = form.cleaned_data['phone_number']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            user = User.objects.create_user(first_name = first_name , last_name = last_name , phone_number = phone_number , email = email, password = password)
-            patient = Patient.objects.create(user=user , user_profile=UserProfile.objects.get(user=user))
-            
-            validate_persian_characters(value=first_name, request=request ,temp=registerUser)
-            validate_persian_characters(value=last_name, request=request ,temp=registerUser)
+                        
+            if validate_persian_characters(request, first_name) or validate_persian_characters(request, last_name):
+                return render(request, 'accounts/registerUser.html', {'form': form})
+            print(3)
             
             try:
                 validate_password(password, user=User)
@@ -86,6 +92,10 @@ def registerUser(request):
                 messages.error(request , 'رمز عبور تعریف شده شما ساده تر از استاندارد است')
                 return render(request, 'accounts/registerUser.html', {'form': form})
             
+            user = User.objects.create_user(first_name = first_name , last_name = last_name , phone_number = phone_number , email = email, password = password)
+            patient = Patient.objects.create(user=user , user_profile=UserProfile.objects.get(user=user))
+
+          
             user.role = User.PATIENT    
             user.save()
             patient.save()
@@ -95,11 +105,11 @@ def registerUser(request):
             email_template = 'accounts/emails/account_verification_email.html'
             send_verification_email(request,user,mail_subject,email_template)
             
-            messages.success(request , "your account has been saved successfully")
-            print('user created successfully')
+            messages.success(request , 'اکانت شما با موفقیت ثبت شد')
+            print('اکانت شما با موفقیت ثبت شد')
             return redirect('registerUser')
         else :
-            print("invalid form")
+            print("ارور")
             print(form.errors)
     else:
         form = UserForm()
@@ -112,35 +122,38 @@ def registerUser(request):
 
 def registerClinic(request):
     if request.user.is_authenticated:
-        messages.warning(request,'u r already logged in')
+        messages.warning(request,'در حال حاضر داخل هستید')
         return redirect('dashboard')
     elif request.method == "POST" :
+        
         form = UserForm(request.POST)
         clinic_form = ClinicForm(request.POST , request.FILES)
         if form.is_valid() and clinic_form.is_valid():
-                     
-            first_name = form.cleaned_data['first_name']
-            last_name = form.cleaned_data['last_name']
-            phone_number = form.cleaned_data['phone_number']
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
             clinic_name = clinic_form.cleaned_data['clinic_name']
             clinic_license = clinic_form.cleaned_data['clinic_license']
             citizen_id = clinic_form.cleaned_data['citizen_id']
             city = clinic_form.cleaned_data['city']
             address = clinic_form.cleaned_data['address']
+              
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            phone_number = form.cleaned_data['phone_number']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+           
+           
+            if validate_persian_characters(value=first_name, request=request) or validate_persian_characters(value=last_name, request=request ) or validate_persian_characters(value=clinic_name, request=request):
+                return render(request, 'accounts/registerClinic.html', {'form': form})
+
             
-            validate_persian_characters(value=first_name, request=request ,temp=registerClinic)
-            validate_persian_characters(value=last_name, request=request ,temp=registerClinic)
-            validate_persian_characters(value=clinic_name, request=request ,temp=registerClinic)
-            validate_persian_characters(value=address, request=request ,temp=registerClinic)
 
             try:
                 validate_password(password, user=User)
             except ValidationError as e:
                 messages.error(request , 'رمز عبور تعریف شده شما ساده تر از استاندارد است')
                 return render(request, 'accounts/registerUser.html', {'form': form})
-            
+                    
+           
             
             user = User.objects.create_user(first_name = first_name , last_name = last_name , phone_number = phone_number , email = email, password = password)
             user.role = User.CLINIC  
@@ -159,7 +172,7 @@ def registerClinic(request):
             email_template = 'accounts/emails/account_verification_email.html'
             send_verification_email(request,user,mail_subject,email_template)   
                      
-            messages.success(request , "your account made successfully")
+            messages.success(request , 'اکانت شما با موفقیت ثبت شد')
             return redirect('registerClinic')
             
         else :
@@ -179,7 +192,7 @@ def registerClinic(request):
 
 def registerLaboratory(request):
     if request.user.is_authenticated:
-        messages.warning(request,'u r already logged in')
+        messages.warning(request,'در حال حاضر داخل هستید')
         return redirect('dashboard')
     if request.method == "POST" :
         form = UserForm(request.POST)
@@ -197,11 +210,8 @@ def registerLaboratory(request):
             city = clinic_form.cleaned_data['city']
             address = clinic_form.cleaned_data['address']
             
-            validate_persian_characters(value=first_name, request=request ,temp=registerLaboratory)
-            validate_persian_characters(value=last_name, request=request ,temp=registerLaboratory)
-            validate_persian_characters(value=clinic_name, request=request ,temp=registerLaboratory)
-            validate_persian_characters(value=address, request=request ,temp=registerLaboratory)
-
+            if validate_persian_characters(value=first_name, request=request) or validate_persian_characters(value=last_name, request=request ) or validate_persian_characters(value=clinic_name, request=request ):
+                return render(request, 'accounts/registerLaboratory.html', {'form': form})
             
             try:
                 validate_password(password, user=User)
@@ -227,7 +237,7 @@ def registerLaboratory(request):
             email_template = 'accounts/emails/account_verification_email.html'
             send_verification_email(request,user,mail_subject,email_template)
             
-            messages.success(request , "your account made successfully")
+            messages.success(request , 'اکانت شما با موفقیت ثبت شد')
             return redirect('registerClinic')
             
         else :
@@ -254,7 +264,7 @@ def activate(request , uidb64 , token):
     if user is not None and default_token_generator.check_token(user , token):
         user.is_active = True
         user.save()
-        messages.success(request,'congrats ur account is activate')
+        messages.success(request,'تبریک اکانت شما فعال شد')
         return redirect('myAccount')
     else:
         
@@ -268,7 +278,7 @@ def activate(request , uidb64 , token):
 
 def login(request):
     if request.user.is_authenticated:
-        messages.warning(request,'u r already logged in')
+        messages.warning(request,'در حال حاضر داخل هستید')
         return redirect('dashboard')
     elif request.method =='POST':   
         email = request.POST["email"]
@@ -277,17 +287,17 @@ def login(request):
         user = auth.authenticate(email=email , password=password)
         if user is not None:
             auth.login(request,user)
-            messages.success(request,'u r logged in')
+            messages.success(request,' شما وارد شدید')
             return redirect('myAccount')
         else :
-            messages.error(request , 'invalid login credentials')
+            messages.error(request , 'اطلاعات ورودی درست نیست')
             return redirect('login')
         
     return render(request , 'accounts/login.html')
 
 def logout(request):
     auth.logout(request)
-    messages.info(request,'u r logged out')
+    messages.info(request,'خارج شدید')
     return redirect('home')
 
 @login_required(login_url ='login')
@@ -343,7 +353,7 @@ def reset_password_validate(request , uidb64 , token):
         
     if user is not None and default_token_generator.check_token(user , token):
             request.session['uid'] = uid
-            messages.info(request , 'please reset your password')
+            messages.info(request , 'لطفا رمزتان را ریست کنید')
             return redirect('reset_password')
     else:
         messages.error(request , 'this link has expired')
@@ -371,10 +381,10 @@ def reset_password(request):
                 
                 user.is_active = True
                 user.save()
-                messages.success(request , 'password changed successfully')
+                messages.success(request , 'رمزعبور با موفقیت عوض شد')
                 return redirect('login')
             else:
-                messages.error(request , 'passwords do not match')
+                messages.error(request , 'رمزجدید و تائید باهم برابر نیستند')
                 return redirect('reset_password')
             
             

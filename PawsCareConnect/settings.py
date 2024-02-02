@@ -144,6 +144,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# stripe
+STRIPE_PUBLIC_KEY='pk_test_51OfMFDCdqFdqb6OvcHnyyuCNEhFvWSQE78LIM3sHn6jxSxpJz3q2XZVt1WVhgtYoij9gU4dNT7Qy90zPtbpZtEZa00LDMDP0iC'
+STRIPE_PRIVATE_KEY='sk_test_51OfMFDCdqFdqb6OvAclfrAMaGHjDn4uvkv43J65ittWGebtyzKuh685i8jAiCdnD0LrVDswTQM3nWB29s8N0sgSl00BG36NVtU'
+
 
 
 #email configuration 

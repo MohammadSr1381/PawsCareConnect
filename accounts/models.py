@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser , BaseUserManager
 
 
+
 class UserManager(BaseUserManager):
     
     def create_user(self , first_name , last_name , phone_number , email , password = None):
@@ -54,6 +55,9 @@ class User(AbstractBaseUser):
         (CLINIC , 'Clinic'),
         (LABORATORY , "Laboratory"),
     )
+    
+    
+    
     
     
     first_name = models.CharField(max_length=50)
@@ -149,7 +153,6 @@ class UserProfile(models.Model):
         return self.user.email
 
 
-
 class Permission(models.Model):
     
     name = models.CharField(max_length=50 , default='permission')
@@ -164,8 +167,9 @@ class Permission(models.Model):
     clinicLogin = models.BooleanField(default=False)
     askQuestion = models.BooleanField(default=False)
     answerQuestion = models.BooleanField(default=False)
-
-
+    patientAppointment = models.BooleanField(default=False)
+    clinicAppointment = models.BooleanField(default=False)
+    
     _singleton_instance = None
 
     def save(self, *args, **kwargs):

@@ -20,6 +20,8 @@ from django.urls import path , include
 from PawsCareConnect import views
 from django.conf import settings
 from django.conf.urls.static import static
+import PawsCareConnect
+from PawsCareConnect.views import custom_404
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,5 +29,7 @@ urlpatterns = [
     path('accounts/' , include('accounts.urls')),
     path('clinics/' , include('clinics.urls')),
     path('patients/' , include('patients.urls')),
-     path('appointments/', include('appointments.urls')),
+    path('appointments/', include('appointments.urls')),
+
 ] + static(settings.MEDIA_URL , document_root = settings.MEDIA_ROOT)
+handler404 = 'PawsCareConnect.views.custom_404'

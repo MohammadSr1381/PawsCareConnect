@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import traceback
 from django.conf import settings
 from django.db.models import Avg
 
@@ -7,9 +8,10 @@ from multiprocessing import context
 from site import USER_BASE
 
 from django.shortcuts import get_object_or_404, redirect, render
+import stripe
 from accounts.forms import UserForm, userProfileForm
 from accounts.models import User, UserProfile
-from appointments.models import Appointment, AppointmentSlot
+from appointments.models import Appointment, AppointmentSlot, PaymentIntent
 
 from clinics.forms import AnswerForm, CRUDClinicForm, CRUDUserForm, CRUDUserProfileForm, ClinicForm
 from clinics.models import Clinic, ClinicSetting, Comment, Rating
@@ -20,6 +22,11 @@ from django.contrib.auth import update_session_auth_hash
 from django.utils import timezone
 
 from django.utils import timezone
+
+
+STRIPE_PUBLIC_KEY='pk_test_51OfMFDCdqFdqb6OvcHnyyuCNEhFvWSQE78LIM3sHn6jxSxpJz3q2XZVt1WVhgtYoij9gU4dNT7Qy90zPtbpZtEZa00LDMDP0iC'
+STRIPE_PRIVATE_KEY='sk_test_51OfMFDCdqFdqb6OvAclfrAMaGHjDn4uvkv43J65ittWGebtyzKuh685i8jAiCdnD0LrVDswTQM3nWB29s8N0sgSl00BG36NVtU'
+
 
 def cprofile(request):
     
@@ -311,20 +318,47 @@ def deleteAppointmentsClinic(request,appointment_id):
     try:
         user_instance = request.user 
         clinic_instance = Clinic.objects.get(user=user_instance)
-        wallet_instance = Wallet.objects.get(patient=user_instance.patient)
         appointment_instance = Appointment.objects.get(id=appointment_id)
-        appointment_instance.delete()
+        payment_intent = PaymentIntent.objects.get(appointment=appointment_instance)
+        payment_intent_instance = PaymentIntent.objects.get(appointment=appointment_instance)
+        patient_instance = appointment_instance.patient
+        wallet_instance = Wallet.objects.get(patient=user_instance.patient)
         wallet_instance.balance += appointment_instance.cost
         wallet_instance.save()
+
+        #refund
+
+        intent_id = payment_intent_instance.intent_id
+        intent = stripe.PaymentIntent.retrieve(intent_id)
+        refund = stripe.Refund.create(payment_intent=intent.id)
+        
+        appointment_instance.delete()
+   
+        
         from_email = settings.DEFAULT_FROM_EMAIL
         patient_email = appointment_instance.patient.user.email
         subject = 'حذف نوبت'
-        message = f'کلینیک {{appointment_instance.clinic.clinic_name}} نوبت خود با شما در تایم {appointment_instance.appointment_datetime} را حذف کرده است'
+        message = f'کلینیک {appointment_instance.clinic.clinic_name} نوبت خود با شما در تایم {appointment_instance.appointment_datetime} را حذف کرده است'
         mail = EmailMessage(subject , message , to=[patient_email])
         mail.send()
         
         messages.success(request , 'نوبت با موفقیت لغو شد')
-    except :
-        messages.error(request , 'قادر به انجام عملیات مورد نظر شما نمی باشیم لطفا بعدا تلاش کنید')
+    except Appointment.DoesNotExist:
+        messages.error(request, 'نوبت مورد نظر یافت نشد')
+    except Clinic.DoesNotExist:
+        messages.error(request, 'کلینیک مورد نظر یافت نشد')
+    except Wallet.DoesNotExist:
+        messages.error(request, 'کیف پول مورد نظر یافت نشد')
+    except Exception as e:
+        #temp
+        appointment_instance.delete()
 
+        messages.success(request, 'نوبت با موفقیت حذف شد')
+        from_email = settings.DEFAULT_FROM_EMAIL
+        patient_email = appointment_instance.patient.user.email
+        subject = 'حذف نوبت'
+        message = f'کلینیک {appointment_instance.clinic.clinic_name} نوبت خود با شما در تایم {appointment_instance.appointment_datetime} را حذف کرده است'
+        mail = EmailMessage(subject , message , to=[patient_email])
+        mail.send()
+        print(traceback.format_exc())
     return redirect(cprofile)

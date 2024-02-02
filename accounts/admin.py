@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User , UserProfile
+from .models import  User , UserProfile
 from django.contrib.auth.admin import UserAdmin
 
 
@@ -30,9 +30,12 @@ class PermissionAdminForm(forms.ModelForm):
         if Permission.objects.exists() and not self.instance.pk:
             raise ValidationError("There can only be one Permission instance. Edit the existing instance.")
 
+
 class PermissionAdmin(admin.ModelAdmin):
     form = PermissionAdminForm
     list_display = ['name','patientRating', 'patientComment', 'patientSignUp', 'patientLogin',
-                    'clinicRating', 'clinicComment', 'clinicSignUp', 'clinicLogin' , 'askQuestion' , 'answerQuestion']
+                    'clinicRating', 'clinicComment', 'clinicSignUp', 'clinicLogin' , 'askQuestion' , 'answerQuestion' , 'patientAppointment','clinicAppointment']
 
 admin.site.register(Permission, PermissionAdmin)
+
+
